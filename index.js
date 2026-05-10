@@ -1,33 +1,26 @@
 const express = require('express');
 const path = require('path');
-const axios = require('axios');
 const app = express();
 
 app.set('view engine', 'ejs');
-app.set('views', './views');
+app.set('views', path.join(__dirname, 'views'));
 app.use(express.static('public'));
-app.use(express.json());
 
-// Route test pour voir si le serveur répond
-app.get('/test', (req, res) => {
-    res.send("Le serveur fonctionne enfin !");
-});
-
-app.get('/', async (req, res) => {
+app.get('/', (req, res) => {
     const user = { nom: "Dominique", solde: 2500 };
-    try {
-        const response = await axios.get('http://162.248.100.46:3022/articles', { timeout: 3000 });
-        res.render('index', { user: user, produits: response.data });
-    } catch (error) {
-        const produitsParDefaut = [
-            { id: 1, nom: "Netflix", prix: 2500, image: "" },
-            { id: 2, nom: "TikTok", prix: 1500, image: "" }
-        ];
-        res.render('index', { user: user, produits: produitsParDefaut });
-    }
+    const produits = [
+        { id: 1, nom: "Netflix", prix: 2500 },
+        { id: 2, nom: "TikTok", prix: 1500 }
+    ];
+    
+    // Si le dossier views existe, il affiche la page, sinon il affiche un texte
+    res.render('index', { user, produits }, (err, html) => {
+        if (err) {
+            return res.send("Le serveur est OK, mais il ne trouve pas le fichier index.ejs dans le dossier views.");
+        }
+        res.send(html);
+    });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log("Serveur actif sur le port " + PORT);
-});
+app.listen(PORT, () => console.log("Serveur actif sur le port " + PORT));
