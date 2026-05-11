@@ -3,113 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MR DOM'S | Dashboard</title>
+    <title>Dom's service | Boutique</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #0b0e14; color: #e2e8f0; font-family: 'Inter', sans-serif; }
-        .sidebar { background-color: #111827; border-right: 1px solid #1f2937; }
-        .card { background: rgba(17, 24, 39, 0.8); border: 1px solid #374151; backdrop-filter: blur(10px); transition: 0.3s; }
-        .card:hover { border-color: #6366f1; transform: translateY(-2px); }
-        .btn-gradient { background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%); }
-        .badge-user { background: #6366f1; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; text-transform: uppercase; }
+        body { background-color: #0b0e14; color: #ffffff; font-family: 'Urbanist', sans-serif; padding-bottom: 100px; }
+        .gold-card { background: linear-gradient(135deg, #ffb800 0%, #ff8a00 100%); color: #000; }
+        .product-card { background-color: #1a1e26; border-radius: 24px; transition: 0.3s; border: 1px solid #334155; }
+        .btn-buy { background-color: #0f172a; color: white; width: 100%; padding: 10px; border-radius: 12px; font-weight: bold; }
+        .nav-bottom { background-color: #111827; border-top: 1px solid #1f2937; }
+        .category-pill { background-color: #1a1e26; border: 1px solid #334155; padding: 8px 20px; border-radius: 20px; font-size: 14px; white-space: nowrap; }
+        .category-pill.active { background-color: #ffffff; color: #000; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="flex min-h-screen">
+<body>
 
-    <aside class="w-64 sidebar hidden lg:flex flex-col">
-        <div class="p-6 flex items-center gap-3">
-            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                <i class="fas fa-cloud text-white"></i>
-            </div>
-            <h1 class="text-xl font-bold tracking-tight">MR DOM'S</h1>
+    <header class="p-6 flex justify-between items-center">
+        <h1 class="text-xl font-bold tracking-tight">Dom's service <i class="fas fa-bolt text-yellow-400"></i></h1>
+        <div class="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-700">
+            <span class="font-bold text-yellow-500">2,500</span>
+            <i class="fas fa-coins text-yellow-500"></i>
+        </div>
+    </header>
+
+    <main class="px-6">
+        <div class="gold-card p-6 rounded-[30px] shadow-lg mb-8 relative overflow-hidden">
+            <p class="text-xs font-bold uppercase opacity-80 mb-1">Solde Actuel</p>
+            <h2 class="text-4xl font-extrabold mb-4">2,500 <span class="text-2xl">Coins</span></h2>
+            <button class="bg-white/20 backdrop-blur-md border border-white/30 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+                <i class="fas fa-plus"></i> Recharge
+            </button>
+            <i class="fas fa-wallet absolute right-[-20px] bottom-[-20px] text-black/10 text-9xl"></i>
         </div>
 
-        <div class="px-4 py-6">
-            <div class="flex items-center gap-3 p-4 bg-slate-800/50 rounded-xl mb-8">
-                <div class="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center font-bold">DO</div>
-                <div>
-                    <p class="text-sm font-bold">Doms</p>
-                    <span class="badge-user">Utilisateur</span>
-                </div>
-            </div>
-
-            <nav class="space-y-1">
-                <a href="#" class="flex items-center gap-3 p-3 text-slate-400 hover:bg-slate-800 rounded-lg transition">
-                    <i class="fas fa-th-large w-5"></i> Tableau de bord
-                </a>
-                <a href="#" class="flex items-center gap-3 p-3 text-indigo-400 bg-indigo-500/10 rounded-lg">
-                    <i class="fab fa-whatsapp w-5"></i> Catalogue Bots
-                </a>
-                <a href="#" class="flex items-center gap-3 p-3 text-slate-400 hover:bg-slate-800 rounded-lg transition">
-                    <i class="fas fa-coins w-5"></i> Acheter des crédits
-                </a>
-                <a href="#" class="flex items-center gap-3 p-3 text-slate-400 hover:bg-slate-800 rounded-lg transition">
-                    <i class="fas fa-headset w-5"></i> Support
-                </a>
-            </nav>
+        <div class="flex gap-3 overflow-x-auto pb-6 no-scrollbar">
+            <button class="category-pill active">Tous</button>
+            <button class="category-pill">Streaming</button>
+            <button class="category-pill">Boost TikTok</button>
+            <button class="category-pill">VCC</button>
         </div>
-    </aside>
 
-    <main class="flex-1 flex flex-col">
-        <header class="h-16 border-b border-slate-800 flex items-center justify-between px-8 bg-[#0b0e14]">
-            <i class="fas fa-bars lg:hidden text-2xl"></i>
-            <div class="flex items-center gap-4">
-                <div class="text-right hidden sm:block">
-                    <p class="text-xs text-slate-500 leading-none">Solde</p>
-                    <p class="text-sm font-bold text-indigo-400">1 500 Coins</p>
-                </div>
-                <div class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center">
-                    <i class="fas fa-bell text-xs text-slate-400"></i>
-                </div>
-            </div>
-        </header>
-
-        <section class="p-8">
-            <div class="text-center mb-10">
-                <span class="btn-gradient px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-4 inline-block">Boutique Digitale</span>
-                <h2 class="text-3xl font-extrabold mt-2">Déployez vos services <span class="text-indigo-500">en 1 minute</span></h2>
-                <p class="text-slate-500 mt-2">Choisissez un service, configurez et recevez instantanément.</p>
-            </div>
-
-            <div class="max-w-md mx-auto mb-10">
-                <div class="relative">
-                    <i class="fas fa-search absolute left-4 top-3.5 text-slate-500"></i>
-                    <input type="text" placeholder="Rechercher un service..." class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-12 pr-4 focus:border-indigo-500 outline-none transition">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                <% services.forEach(service => { %>
-                    <div class="card p-6 rounded-2xl relative overflow-hidden">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center text-2xl">
-                                <%= service.icon %>
-                            </div>
-                            <button class="text-slate-500 hover:text-white"><i class="fas fa-share-alt"></i></button>
-                        </div>
-                        <h3 class="text-xl font-bold uppercase tracking-tight"><%= service.name %></h3>
-                        <p class="text-slate-500 text-sm mt-2 mb-6 h-12 overflow-hidden"><%= service.desc %></p>
-                        
-                        <div class="flex items-center gap-2 mb-6">
-                            <span class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 uppercase">Premium</span>
-                            <span class="bg-slate-800 text-[10px] px-2 py-1 rounded border border-slate-700 uppercase">Auto</span>
-                        </div>
-
-                        <div class="flex justify-between items-center pt-4 border-t border-slate-800">
-                            <div>
-                                <p class="text-[10px] text-slate-500 uppercase">Prix</p>
-                                <p class="font-bold text-orange-400">💰 <%= service.price %></p>
-                            </div>
-                            <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition">
-                                Acheter
-                            </button>
-                        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <% services.forEach(service => { %>
+                <div class="product-card p-4 flex flex-col items-center">
+                    <div class="w-20 h-20 mb-4 flex items-center justify-center text-4xl">
+                        <%= service.icon || '📦' %>
                     </div>
-                <% }); %>
-            </div>
-        </section>
+                    <h3 class="font-bold text-sm text-center mb-1 leading-tight"><%= service.name %></h3>
+                    <p class="text-yellow-500 font-bold text-xs mb-4"><%= service.price %> Coins</p>
+                    <button class="btn-buy text-[10px] uppercase tracking-wider">Acheter</button>
+                </div>
+            <% }); %>
+        </div>
     </main>
+
+    <nav class="nav-bottom fixed bottom-0 left-0 right-0 h-20 px-8 flex justify-between items-center z-50">
+        <a href="/" class="flex flex-col items-center text-yellow-500">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-[10px] mt-1 font-bold">Accueil</span>
+        </a>
+        <a href="/vendre" class="flex flex-col items-center text-slate-500 hover:text-white transition">
+            <i class="fas fa-plus-circle text-xl"></i>
+            <span class="text-[10px] mt-1 font-bold">Vendre</span>
+        </a>
+        <a href="/historique" class="flex flex-col items-center text-slate-500">
+            <i class="fas fa-history text-xl"></i>
+            <span class="text-[10px] mt-1 font-bold">Historique</span>
+        </a>
+        <a href="/profil" class="flex flex-col items-center text-slate-500">
+            <i class="fas fa-user text-xl"></i>
+            <span class="text-[10px] mt-1 font-bold">Profil</span>
+        </a>
+    </nav>
 
 </body>
 </html>
