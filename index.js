@@ -3,63 +3,74 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 
-// Import des modèles (Assure-toi que ces fichiers existent dans ton dossier /models)
+// Import des modèles
 const Service = require('./models/Service');
 const User = require('./models/User');
 
 const app = express();
 
-// 1. Connexion à MongoDB Atlas
+// 1. Connexion à MongoDB Atlas (Utilise ton lien Janise1234 dans Render)
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("✅ Connecté à MongoDB Atlas"))
-    .catch(err => console.error("❌ Erreur de connexion MongoDB :", err));
+    .then(() => console.log("✅ Connecté avec succès à MongoDB Atlas"))
+    .catch(err => console.error("❌ Erreur de connexion :", err));
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 2. Route Accueil (Récupère les services depuis la BDD)
+// 2. ROUTES
+
+// --- ACCUEIL / DASHBOARD ---
 app.get('/', async (req, res) => {
     try {
-        // On va chercher tous les services enregistrés dans MongoDB
+        // On récupère les services depuis la base de données
         const services = await Service.find().sort({ createdAt: -1 });
         
-        // On simule un utilisateur "Doms" pour le design
+        // Utilisateur fictif pour l'instant (On créera le vrai Login après)
         const user = { username: "Doms", coins: 304 }; 
         
         res.render('index', { services, user });
     } catch (err) {
-        res.status(500).send("Erreur lors de la récupération des services");
+        res.status(500).send("Erreur de chargement du dashboard");
     }
 });
 
-// 3. Route Page Vendre
+// --- PAGE RECHARGER (Option A) ---
+app.get('/recharger', (req, res) => {
+    const tarifs = [
+        { coins: 500, prix: 500, bonus: 0 },
+        { coins: 1000, prix: 1000, bonus: 50 },
+        { coins: 2000, prix: 2000, bonus: 150 },
+        { coins: 5000, prix: 5000, bonus: 500 }
+    ];
+    const user = { username: "Doms", coins: 304 };
+    res.render('recharger', { tarifs, user });
+});
+
+// --- PAGE VENDRE (ADMIN) ---
 app.get('/vendre', (req, res) => {
     res.render('vendre');
 });
 
-// 4. Route Action Ajouter (Enregistre dans la BDD)
+// --- ACTION : AJOUTER UN PRODUIT ---
 app.post('/ajouter-produit', async (req, res) => {
     const { name, price, category } = req.body;
     
-    // Choix de l'icône selon la catégorie
     let icon = "📦";
     if(category === "streaming") icon = "📺";
     if(category === "social") icon = "🚀";
     if(category === "gaming") icon = "🎮";
 
     try {
-        // ICI : On enregistre réellement dans MongoDB
         await Service.create({ name, price, category, icon });
-        console.log(`✅ Article ajouté : ${name}`);
         res.redirect('/');
     } catch (err) {
-        console.error("❌ Erreur d'enregistrement :", err);
-        res.status(500).send("Erreur lors de l'enregistrement de l'article");
+        res.status(500).send("Erreur lors de l'ajout du produit");
     }
 });
 
+// Lancement du serveur
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Serveur lancé sur le port ${PORT}`);
+    console.log(`🚀 Dom Services est Live sur le port ${PORT}`);
 });
