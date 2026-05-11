@@ -3,111 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mr Dom’s - D-Coins App</title>
+    <title>Mr Dom’s - Marketplace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #0b0f1a; color: white; font-family: 'Inter', sans-serif; }
-        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .nav-active { color: #6366f1; border-top: 2px solid #6366f1; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .nav-active { color: #6366f1; }
         .hidden-section { display: none; }
-        .modal { transition: opacity 0.3s ease; }
+        .gradient-text { background: linear-gradient(135deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
 <body class="pb-24">
 
-    <div class="p-6">
-        <div class="glass-card rounded-3xl p-6 bg-gradient-to-br from-indigo-600/20 to-purple-600/20">
-            <p class="text-gray-400 text-sm">Mon solde</p>
-            <div class="flex justify-between items-center mt-1">
-                <h2 class="text-3xl font-black text-white">5 000 <span class="text-indigo-400 text-xl italic">DC</span></h2>
-                <button onclick="toggleModal('rechargeModal')" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/30">
-                    <i class="fas fa-plus-circle mr-1"></i> Recharge
-                </button>
-            </div>
+    <nav class="flex justify-between items-center px-6 py-5 sticky top-0 bg-[#0b0f1a]/80 backdrop-blur-md z-40">
+        <h1 class="text-xl font-black tracking-tighter">MR DOM’S</h1>
+        <div class="flex items-center gap-3">
+            <button onclick="showSection('profile')" class="glass-card px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-2">
+                <i class="fas fa-wallet text-yellow-500"></i> Se connecter
+            </button>
         </div>
-    </div>
-
-    <div id="homeSection" class="px-6 space-y-6">
-        <h3 class="text-xl font-bold">Services Populaires</h3>
-        <div class="grid grid-cols-2 gap-4">
-            <div class="glass-card p-4 rounded-2xl relative">
-                <div class="text-3xl mb-2 text-indigo-400"><i class="fab fa-netflix"></i></div>
-                <h4 class="font-bold text-sm">Netflix 30J</h4>
-                <p class="text-xs text-gray-500 mb-3">Premium 4K</p>
-                <button class="w-full py-2 bg-white/10 rounded-lg text-xs font-bold hover:bg-indigo-600">3 500 DC</button>
-            </div>
-            <div class="glass-card p-4 rounded-2xl relative">
-                <div class="text-3xl mb-2 text-purple-400"><i class="fab fa-tiktok"></i></div>
-                <h4 class="font-bold text-sm">Boost TikTok</h4>
-                <p class="text-xs text-gray-500 mb-3">+1k Followers</p>
-                <button class="w-full py-2 bg-white/10 rounded-lg text-xs font-bold hover:bg-indigo-600 text-yellow-500">1 500 DC</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="sellSection" class="hidden-section px-6 py-10 text-center">
-        <i class="fas fa-store-alt text-5xl mb-4 text-gray-600"></i>
-        <h3 class="text-xl font-bold">Devenir Vendeur</h3>
-        <p class="text-gray-400 text-sm mt-2">Postez vos propres services et gagnez des D-Coins.</p>
-        <button class="mt-6 px-8 py-3 bg-indigo-600 rounded-full font-bold">Commencer</button>
-    </div>
-
-    <nav class="fixed bottom-0 left-0 right-0 glass-card border-t border-white/10 flex justify-around py-3 bg-black/80">
-        <button onclick="showSection('home')" id="nav-home" class="flex flex-col items-center gap-1 nav-active text-xs w-1/4">
-            <i class="fas fa-home text-lg"></i> Accueil
-        </button>
-        <button onclick="showSection('sell')" id="nav-sell" class="flex flex-col items-center gap-1 text-gray-500 text-xs w-1/4">
-            <i class="fas fa-plus-square text-lg"></i> Vendre
-        </button>
-        <button class="flex flex-col items-center gap-1 text-gray-500 text-xs w-1/4">
-            <i class="fas fa-history text-lg"></i> Historique
-        </button>
-        <button class="flex flex-col items-center gap-1 text-gray-500 text-xs w-1/4">
-            <i class="fas fa-user-circle text-lg"></i> Profil
-        </button>
     </nav>
 
-    <div id="rechargeModal" class="hidden-section fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90">
-        <div class="glass-card w-full max-w-sm rounded-3xl p-8 relative">
-            <button onclick="toggleModal('rechargeModal')" class="absolute top-4 right-4 text-gray-500"><i class="fas fa-times text-xl"></i></button>
-            <h3 class="text-2xl font-black mb-6">Recharger en D-Coins</h3>
-            
-            <div class="space-y-4">
-                <div class="flex items-center gap-4 p-4 bg-orange-500/10 rounded-2xl border border-orange-500/20">
-                    <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center"><i class="fas fa-mobile-alt"></i></div>
-                    <div><p class="text-xs text-gray-400">Orange Money / MoMo</p><p class="font-bold text-sm">+237 6XX XX XX XX</p></div>
-                </div>
-                <div class="flex items-center gap-4 p-4 bg-yellow-500/10 rounded-2xl border border-yellow-500/20">
-                    <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center"><i class="fab fa-bitcoin"></i></div>
-                    <div><p class="text-xs text-gray-400">Crypto (USDT)</p><p class="font-bold text-sm text-[10px]">TYxxxxxxxxxxxxxxxxxxxxxxxx</p></div>
-                </div>
-            </div>
-            
-            <button class="w-full mt-8 py-4 bg-indigo-600 rounded-2xl font-black shadow-lg shadow-indigo-500/40">J'AI PAYÉ ✅</button>
-        </div>
-    </div>
+    <div id="homeSection">
+        <header class="px-6 py-8">
+            <h2 class="text-3xl font-extrabold leading-tight">Propulsez votre <br><span class="gradient-text">Vie Digitale.</span></h2>
+            <p class="text-gray-500 text-sm mt-2">Streaming, Boost Social & Services Premium.</p>
+        </header>
 
-    <script>
-        function showSection(name) {
-            document.getElementById('homeSection').classList.add('hidden-section');
-            document.getElementById('sellSection').classList.add('hidden-section');
-            document.getElementById('nav-home').classList.remove('nav-active', 'text-indigo-400');
-            document.getElementById('nav-sell').classList.remove('nav-active', 'text-indigo-400');
-
-            if(name === 'home') {
-                document.getElementById('homeSection').classList.remove('hidden-section');
-                document.getElementById('nav-home').classList.add('nav-active');
-            } else if(name === 'sell') {
-                document.getElementById('sellSection').classList.remove('hidden-section');
-                document.getElementById('nav-sell').classList.add('nav-active');
-            }
-        }
-
-        function toggleModal(id) {
-            const modal = document.getElementById(id);
-            modal.classList.toggle('hidden-section');
-        }
-    </script>
-</body>
-</html>
+        <div class="flex gap-3 px-6 overflow-x-auto pb-4 no-scrollbar">
+            <span class="bg-indigo-600 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap">Tout</span>
+            <span class="glass-card px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap text-gray-400
