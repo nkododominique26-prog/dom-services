@@ -1,0 +1,27 @@
+<body class="bg-[#1a1625] text-white p-6">
+    <h1 class="text-xl font-bold mb-4 text-purple-500 text-center">Paiement Forfait <%= amount %> Coins</h1>
+    
+    <div class="bg-[#241e35] p-6 rounded-2xl border border-purple-500/20 mb-6">
+        <p class="text-sm text-gray-400 mb-4">Veuillez effectuer le transfert au numéro ci-dessous :</p>
+        
+        <div class="space-y-4">
+            <div class="flex items-center justify-between p-3 bg-orange-500/10 rounded-lg border border-orange-500/30">
+                <span>Orange Money</span>
+                <span class="font-bold">691163186</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
+                <span>MTN Mobile Money</span>
+                <span class="font-bold">681175901</span>
+            </div>
+        </div>
+    </div>
+
+    <form action="/soumettre-preuve" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <input type="hidden" name="amount" value="<%= amount %>">
+        
+        <label class="block text-sm text-gray-400">Téléchargez la capture d'écran du paiement :</label>
+        <input type="file" name="capture" required class="w-full bg-[#1a1625] border border-gray-700 p-2 rounded-lg">
+        
+        <button type="submit" class="w-full bg-purple-600 py-3 rounded-xl font-bold">Envoyer la preuve</button>
+    </form>
+</body>
