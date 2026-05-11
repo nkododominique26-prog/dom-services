@@ -1,34 +1,25 @@
-const express = require('express');
-const axios = require('axios'); // On utilise axios pour parler au VPS
-const app = express();
-const path = require('path');
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dom Services - Test</title>
+    <style>
+        body { background-color: #001f3f; color: white; font-family: sans-serif; text-align: center; padding-top: 50px; }
+        .card { border: 1px solid white; padding: 20px; display: inline-block; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Bienvenue sur Dom Services</h1>
+    <p>Utilisateur : <%= user.nom %></p>
+    <p>Solde : <%= user.solde %> FCFA</p>
 
-app.set('view engine', 'ejs');
-app.use(express.static('public'));
-app.use(express.json());
-
-// L'adresse de ton cerveau (ton VPS KermHosting)
-const VPS_URL = 'http://162.248.100.46:3022'; 
-
-// Page d'accueil : elle demande les articles au VPS
-app.get('/', async (req, res) => {
-    try {
-        const response = await axios.get(`${VPS_URL}/articles`);
-        res.render('index', { articles: response.data });
-    } catch (error) {
-        res.render('index', { articles: [] }); // Si le VPS est éteint, on affiche vide
-    }
-});
-
-// Route pour envoyer un article au VPS
-app.post('/publier', async (req, res) => {
-    try {
-        await axios.post(`${VPS_URL}/ajouter`, req.body);
-        res.redirect('/');
-    } catch (error) {
-        res.send("Erreur de connexion au serveur de stockage.");
-    }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Site actif sur le port ${PORT}`));
+    <div class="card">
+        <h3>Produits disponibles :</h3>
+        <ul>
+            <% produits.forEach(function(produit) { %>
+                <li><%= produit.nom %> - <%= produit.prix %> FCFA</li>
+            <% }); %>
+        </ul>
+    </div>
+</body>
+</html>
