@@ -2,24 +2,90 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Dom Services - Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mr Dom’s - D-Coins Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #001f3f; color: white; font-family: sans-serif; text-align: center; padding-top: 50px; }
-        .card { border: 1px solid white; padding: 20px; display: inline-block; border-radius: 10px; }
+        body { background-color: #0f172a; color: white; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .coin-gradient { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
+        .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); transition: transform 0.2s; }
+        .btn-primary:hover { transform: scale(1.05); }
     </style>
 </head>
-<body>
-    <h1>Bienvenue sur Dom Services</h1>
-    <p>Utilisateur : <%= user.nom %></p>
-    <p>Solde : <%= user.solde %> FCFA</p>
+<body class="min-h-screen font-sans">
 
-    <div class="card">
-        <h3>Produits disponibles :</h3>
-        <ul>
-            <% produits.forEach(function(produit) { %>
-                <li><%= produit.nom %> - <%= produit.prix %> FCFA</li>
-            <% }); %>
-        </ul>
-    </div>
+    <nav class="glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
+        <h1 class="text-2xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
+            MR DOM’S <span class="text-xs font-light text-white">PRO</span>
+        </h1>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 glass px-3 py-1 rounded-full border-yellow-500/50">
+                <span class="text-yellow-500 font-bold">5 000</span>
+                <i class="fas fa-coins text-yellow-500"></i>
+            </div>
+            <button class="text-sm bg-white/10 p-2 rounded-full"><i class="fas fa-user"></i></button>
+        </div>
+    </nav>
+
+    <header class="px-6 py-12 text-center">
+        <h2 class="text-4xl font-extrabold mb-4">Achetez avec vos <span class="text-indigo-400">D-Coins</span></h2>
+        <p class="text-gray-400 max-w-md mx-auto">La marketplace n°1 au Cameroun pour vos services digitaux et boosts sociaux.</p>
+        <div class="mt-6 flex justify-center gap-3">
+            <button class="btn-primary px-6 py-2 rounded-lg font-bold">Acheter des DC</button>
+            <button class="glass px-6 py-2 rounded-lg font-bold">Vendre</button>
+        </div>
+    </header>
+
+    <main class="px-6 pb-20">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="glass rounded-2xl overflow-hidden p-4 relative">
+                <span class="absolute top-2 right-2 bg-green-500 text-[10px] px-2 py-1 rounded-full uppercase font-bold">Disponible</span>
+                <div class="h-32 flex items-center justify-center text-5xl mb-4 bg-indigo-500/20 rounded-xl text-indigo-400">
+                    <i class="fas fa-tv"></i>
+                </div>
+                <h3 class="text-lg font-bold">Abonnement Netflix</h3>
+                <p class="text-sm text-gray-400 mb-4">Compte Premium 4K - 30 jours garantis.</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-xl font-black text-yellow-500">3 500 DC</span>
+                    <button class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">Acheter</button>
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl overflow-hidden p-4 relative">
+                <span class="absolute top-2 right-2 bg-green-500 text-[10px] px-2 py-1 rounded-full uppercase font-bold">Auto</span>
+                <div class="h-32 flex items-center justify-center text-5xl mb-4 bg-purple-500/20 rounded-xl text-purple-400">
+                    <i class="fab fa-tiktok"></i>
+                </div>
+                <h3 class="text-lg font-bold">Boost TikTok</h3>
+                <p class="text-sm text-gray-400 mb-4">1 000 Abonnés réels et rapides.</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-xl font-black text-yellow-500">1 500 DC</span>
+                    <button class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">Acheter</button>
+                </div>
+            </div>
+
+            <div class="glass rounded-2xl overflow-hidden p-4 relative">
+                <span class="absolute top-2 right-2 bg-blue-500 text-[10px] px-2 py-1 rounded-full uppercase font-bold">Service</span>
+                <div class="h-32 flex items-center justify-center text-5xl mb-4 bg-cyan-500/20 rounded-xl text-cyan-400">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3 class="text-lg font-bold">Bot WhatsApp Pro</h3>
+                <p class="text-sm text-gray-400 mb-4">Installation et config sur votre VPS.</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-xl font-black text-yellow-500">8 000 DC</span>
+                    <button class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">Détails</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="text-center py-10 border-t border-white/10">
+        <p class="text-gray-500 text-xs">© 2026 Mr Dom’s Digital. Tous droits réservés.</p>
+    </footer>
+
 </body>
 </html>
