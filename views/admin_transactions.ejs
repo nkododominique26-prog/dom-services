@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Transactions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#1a1625] text-white p-6">
+    <h1 class="text-2xl font-bold mb-6">Gestion des Recharges</h1>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left bg-[#241e35] rounded-xl overflow-hidden">
+            <thead class="bg-[#2d2445] text-gray-400 text-sm">
+                <tr>
+                    <th class="p-4">Utilisateur</th>
+                    <th class="p-4">Montant</th>
+                    <th class="p-4">Preuve</th>
+                    <th class="p-4">Statut</th>
+                    <th class="p-4">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+                <% transactions.forEach(t => { %>
+                    <tr class="hover:bg-white/5 transition">
+                        <td class="p-4 font-bold"><%= t.username %></td>
+                        <td class="p-4 text-purple-400"><%= t.amount %> Coins</td>
+                        <td class="p-4">
+                            <% if(t.proofImage) { %>
+                                <a href="/uploads/<%= t.proofImage %>" target="_blank" class="text-blue-400 underline text-xs">Voir l'image</a>
+                            <% } else { %>
+                                <span class="text-red-500 text-xs">Pas d'image</span>
+                            <% } %>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2 py-1 rounded text-[10px] <%= t.status === 'Validé' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400' %>">
+                                <%= t.status %>
+                            </span>
+                        </td>
+                        <td class="p-4">
+                            <% if(t.status === 'En attente') { %>
+                                <form action="/admin/valider/<%= t._id %>" method="POST">
+                                    <button class="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-xs font-bold transition">Valider</button>
+                                </form>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+    
+    <a href="/" class="block mt-8 text-gray-500 text-sm text-center">Retour au site</a>
+</body>
+</html>
