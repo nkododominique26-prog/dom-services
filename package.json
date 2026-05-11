@@ -1,16 +1,21 @@
 {
-  "name": "mr-doms-boutique",
+  "name": "dom-services",
   "version": "1.0.0",
-  "description": "Boutique digitale de services et boost social media",
+  "description": "Boutique de services numériques",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-mongo": "^5.1.0",
+    "dotenv": "^16.0.0",
+    "ejs": "^3.1.9",
     "express": "^4.18.2",
-    "ejs": "^3.1.9"
-  },
-  "engines": {
-    "node": ">=14.0.0"
+    "express-session": "^1.17.3",
+    "mongoose": "^8.0.0",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0"
   }
 }
