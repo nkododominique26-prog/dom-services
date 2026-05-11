@@ -1,18 +1,16 @@
 {
-  "name": "dom-services",
+  "name": "mr-doms-boutique",
   "version": "1.0.0",
-  "description": "Plateforme de services digitaux Mr Dom's",
+  "description": "Boutique digitale de services et boost social media",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
-  "keywords": [],
-  "author": "Dominique",
-  "license": "ISC",
   "dependencies": {
-    "axios": "^1.6.0",
-    "ejs": "^3.1.9",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "ejs": "^3.1.9"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
