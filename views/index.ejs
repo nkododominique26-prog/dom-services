@@ -7,30 +7,24 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #0b0f1a; color: white; font-family: 'Inter', sans-serif; }
+        body { background-color: #0b0f1a; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .nav-active { color: #6366f1; }
+        .nav-active { color: #6366f1; transform: translateY(-3px); }
         .hidden-section { display: none; }
         .gradient-text { background: linear-gradient(135deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="pb-24">
 
-    <nav class="flex justify-between items-center px-6 py-5 sticky top-0 bg-[#0b0f1a]/80 backdrop-blur-md z-40">
-        <h1 class="text-xl font-black tracking-tighter">MR DOM’S</h1>
+    <nav class="flex justify-between items-center px-6 py-6 sticky top-0 bg-[#0b0f1a]/90 backdrop-blur-xl z-40">
+        <h1 class="text-xl font-black tracking-tighter italic">MR DOM’S</h1>
         <div class="flex items-center gap-3">
-            <button onclick="showSection('profile')" class="glass-card px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-2">
-                <i class="fas fa-wallet text-yellow-500"></i> Se connecter
+            <button onclick="showSection('profile')" class="bg-indigo-600/10 text-indigo-400 px-4 py-1.5 rounded-full text-xs font-bold border border-indigo-500/20">
+                <i class="fas fa-user-circle mr-1"></i> Connexion
             </button>
         </div>
     </nav>
 
-    <div id="homeSection">
-        <header class="px-6 py-8">
-            <h2 class="text-3xl font-extrabold leading-tight">Propulsez votre <br><span class="gradient-text">Vie Digitale.</span></h2>
-            <p class="text-gray-500 text-sm mt-2">Streaming, Boost Social & Services Premium.</p>
-        </header>
-
-        <div class="flex gap-3 px-6 overflow-x-auto pb-4 no-scrollbar">
-            <span class="bg-indigo-600 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap">Tout</span>
-            <span class="glass-card px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap text-gray-400
+    <div id="homeSection" class="animate-in fade-in duration-500">
+        <header class="px-6 py-6">
