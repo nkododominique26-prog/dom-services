@@ -6,12 +6,12 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 
-// Liste des services initiale (Boutique Dom's service)
+// Base de données temporaire
 let services = [
-    { name: "Netflix Premium", price: "3000 Coins", icon: "📺", category: "streaming" },
-    { name: "Boost TikTok", price: "2500 Coins", icon: "🚀", category: "social" },
-    { name: "IPTV Stable", price: "5000 Coins", icon: "🌐", category: "streaming" },
-    { name: "Canal+ Web", price: "4500 Coins", icon: "📡", category: "streaming" }
+    { name: "Netflix Premium", price: "3000", icon: "📺", category: "streaming" },
+    { name: "Boost TikTok", price: "2500", icon: "🚀", category: "social" },
+    { name: "IPTV Stable", price: "5000", icon: "🌐", category: "streaming" },
+    { name: "Canal+ Web", price: "4500", icon: "📡", category: "streaming" }
 ];
 
 // Route Accueil
@@ -24,23 +24,19 @@ app.get('/vendre', (req, res) => {
     res.render('vendre');
 });
 
-// Logique pour ajouter un produit depuis le formulaire
+// Route pour ajouter un produit
 app.post('/ajouter-produit', (req, res) => {
     const { name, price, category } = req.body;
-    
-    // On ajoute le nouveau service à la liste avec une icône par défaut
     services.push({
         name: name,
-        price: price + " Coins",
+        price: price, // On stocke juste le chiffre
         icon: "📦", 
         category: category
     });
-
-    // Redirection vers l'accueil pour voir le résultat
     res.redirect('/');
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Serveur lancé sur http://localhost:${PORT}`);
+    console.log(`Dom's service lancé sur le port ${PORT}`);
 });
