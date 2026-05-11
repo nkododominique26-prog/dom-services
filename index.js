@@ -1,34 +1,29 @@
 const express = require('express');
-const path = require('path');
-const axios = require('axios'); // On ajoute axios pour parler au VPS
 const app = express();
+const path = require('path');
 
+// Configuration d'EJS
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+// Servir les fichiers statiques (CSS, Images)
 app.use(express.static('public'));
 
-// URL de ton serveur sur KermHosting
-const VPS_URL = 'http://162.248.100.46:3022'; 
+// Données de ton catalogue (Modifie les prix et noms ici)
+const services = [
+    { name: "Netflix Premium", price: "3000 FCFA", desc: "Compte privé - 1 Mois", icon: "📺" },
+    { name: "Boost TikTok", price: "2500 FCFA", desc: "1000 Abonnés réels", icon: "🚀" },
+    { name: "IPTV Stable", price: "5000 FCFA", desc: "Plus de 10k chaînes - 1 Mois", icon: "🌐" },
+    { name: "Canal+ Web", price: "4500 FCFA", desc: "Accès complet via application", icon: "📡" }
+];
 
-app.get('/', async (req, res) => {
-    const user = { nom: "Dominique", solde: 2500 };
-    
-    try {
-        // Tentative de récupération des vrais articles sur ton VPS
-        const response = await axios.get(`${VPS_URL}/articles`, { timeout: 4000 });
-        res.render('index', { user: user, produits: response.data });
-    } catch (error) {
-        // Si le VPS ne répond pas, on garde les produits de test pour éviter l'écran noir
-        console.log("Connexion VPS impossible, affichage mode secours.");
-        const produitsSecours = [
-            { id: 1, nom: "Netflix Premium", prix: 2500 },
-            { id: 2, nom: "1000 Abonnés TikTok", prix: 1500 }
-        ];
-        res.render('index', { user: user, produits: produitsSecours });
-    }
+// Route principale
+app.get('/', (req, res) => {
+    res.render('index', { services: services });
 });
 
+// Port pour Render
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log("Dom Services fusionné et prêt sur le port " + PORT);
+    console.log(`Serveur lancé sur http://localhost:${PORT}`);
 });
