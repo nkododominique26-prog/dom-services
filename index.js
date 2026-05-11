@@ -2,75 +2,73 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
+const multer = require('multer');
 
-// Import des modèles
+// Modèles
 const Service = require('./models/Service');
 const User = require('./models/User');
+const Transaction = require('./models/Transaction');
 
 const app = express();
 
-// 1. Connexion à MongoDB Atlas (Utilise ton lien Janise1234 dans Render)
+// Configuration de stockage pour les captures d'écran
+const storage = multer.diskStorage({
+    destination: './public/uploads/',
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
+
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("✅ Connecté avec succès à MongoDB Atlas"))
-    .catch(err => console.error("❌ Erreur de connexion :", err));
+    .then(() => console.log("✅ BDD Connectée"))
+    .catch(err => console.log(err));
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
-// 2. ROUTES
+// --- ROUTES ---
 
-// --- ACCUEIL / DASHBOARD ---
 app.get('/', async (req, res) => {
-    try {
-        // On récupère les services depuis la base de données
-        const services = await Service.find().sort({ createdAt: -1 });
-        
-        // Utilisateur fictif pour l'instant (On créera le vrai Login après)
-        const user = { username: "Doms", coins: 304 }; 
-        
-        res.render('index', { services, user });
-    } catch (err) {
-        res.status(500).send("Erreur de chargement du dashboard");
-    }
+    const services = await Service.find().sort({ createdAt: -1 });
+    const user = { username: "Doms", coins: 304 }; // À remplacer par req.user plus tard
+    res.render('index', { services, user });
 });
 
-// --- PAGE RECHARGER (Option A) ---
 app.get('/recharger', (req, res) => {
-    const tarifs = [
-        { coins: 500, prix: 500, bonus: 0 },
-        { coins: 1000, prix: 1000, bonus: 50 },
-        { coins: 2000, prix: 2000, bonus: 150 },
-        { coins: 5000, prix: 5000, bonus: 500 }
-    ];
     const user = { username: "Doms", coins: 304 };
-    res.render('recharger', { tarifs, user });
+    res.render('recharger', { user });
 });
 
-// --- PAGE VENDRE (ADMIN) ---
-app.get('/vendre', (req, res) => {
-    res.render('vendre');
+// Page de paiement spécifique pour un forfait
+app.get('/payer/:amount', (req, res) => {
+    const amount = req.params.amount;
+    const user = { username: "Doms", coins: 304 };
+    res.render('paiement', { amount, user });
 });
 
-// --- ACTION : AJOUTER UN PRODUIT ---
-app.post('/ajouter-produit', async (req, res) => {
-    const { name, price, category } = req.body;
-    
-    let icon = "📦";
-    if(category === "streaming") icon = "📺";
-    if(category === "social") icon = "🚀";
-    if(category === "gaming") icon = "🎮";
-
+// Action de soumission de la preuve
+app.post('/soumettre-preuve', upload.single('capture'), async (req, res) => {
+    const { amount } = req.body;
     try {
-        await Service.create({ name, price, category, icon });
-        res.redirect('/');
+        await Transaction.create({
+            userId: "ID_DOMS", // À dynamiser plus tard
+            username: "Doms",
+            amount: amount,
+            price: amount, // Si 1 Coin = 1 FCFA
+            proofImage: req.file ? req.file.filename : ''
+        });
+        res.render('confirmation_paiement');
     } catch (err) {
-        res.status(500).send("Erreur lors de l'ajout du produit");
+        res.status(500).send("Erreur lors de l'envoi");
     }
 });
 
-// Lancement du serveur
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`🚀 Dom Services est Live sur le port ${PORT}`);
+// --- ADMIN : VOIR LES DEMANDES ---
+app.get('/admin/transactions', async (req, res) => {
+    const transactions = await Transaction.find().sort({ createdAt: -1 });
+    res.render('admin_transactions', { transactions });
 });
+
+app.listen(process.env.PORT || 3000);
