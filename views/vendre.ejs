@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendre | Dom's service</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #0b0e14; color: #ffffff; font-family: 'Inter', sans-serif; }
+        .input-field { background-color: #1a1e26; border: 1px solid #334155; border-radius: 15px; padding: 15px; width: 100%; color: white; outline: none; }
+        .input-field:focus { border-color: #ffb800; }
+        .btn-submit { background: linear-gradient(135deg, #ffb800 0%, #ff8a00 100%); color: #000; font-weight: 800; padding: 18px; border-radius: 15px; width: 100%; }
+    </style>
+</head>
+<body>
+    <header class="p-6 flex items-center gap-4">
+        <a href="/" class="text-slate-400"><i class="fas fa-arrow-left text-xl"></i></a>
+        <h1 class="text-xl font-bold">Mettre en vente</h1>
+    </header>
+
+    <main class="px-6">
+        <form action="/ajouter-produit" method="POST" class="space-y-6">
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase">Nom de l'article</label>
+                <input type="text" name="name" placeholder="ex: Compte Netflix" class="input-field mt-2" required>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase">Prix (Chiffre uniquement)</label>
+                <input type="number" name="price" placeholder="ex: 2000" class="input-field mt-2" required>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-500 uppercase">Catégorie</label>
+                <select name="category" class="input-field mt-2">
+                    <option value="streaming">Streaming</option>
+                    <option value="social">Social Boost</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-submit">Publier sur Dom's service</button>
+        </form>
+    </main>
+</body>
+</html>
