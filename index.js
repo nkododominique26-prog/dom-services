@@ -10,44 +10,59 @@ const MongoStore = require('connect-mongo');
 const User = require('./models/User');
 
 const app = express();
+
+// --- CONFIGURATION PORT ---
+// Crucial pour Render : détecte le port 10000 automatiquement
 const PORT = process.env.PORT || 10000;
 
-// Configuration
+// Middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Connexion MongoDB
+// --- CONNEXION MONGODB ---
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("✅ BDD Connectée"))
+    .then(() => console.log("✅ Connecté à MongoDB"))
     .catch(err => console.error("❌ Erreur BDD:", err));
 
-// Sessions
+// --- GESTION DES SESSIONS ---
 app.use(session({
     secret: 'dom_secret_key_2026',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-    cookie: { maxAge: 1000 * 60 * 60 * 24 } // 24h
+    cookie: { maxAge: 1000 * 60 * 60 * 24 } // Session de 24h
 }));
 
-// Routes Authentification
-app.get('/register', (req, res) => res.render('register', { error: null }));
+// --- ROUTES AUTHENTIFICATION ---
+
+// Inscription
+app.get('/register', (req, res) => {
+    res.render('register', { error: null });
+});
 
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await User.create({ username: username.trim(), password: hashedPassword });
+        const newUser = await User.create({ 
+            username: username.trim(), 
+            password: hashedPassword 
+        });
         req.session.userId = newUser._id;
         res.redirect('/');
     } catch (err) {
-        res.render('register', { error: "Nom d'utilisateur déjà pris." });
+        // Gère l'erreur si le nom existe déjà
+        res.render('register', { error: "Ce nom d'utilisateur est déjà utilisé." });
     }
 });
 
-app.get('/login', (req, res) => res.render('login', { error: null }));
+// Connexion
+app.get('/login', (req, res) => {
+    res.render('login', { error: null });
+});
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -59,21 +74,34 @@ app.post('/login', async (req, res) => {
         } else {
             res.render('login', { error: "Identifiants incorrects." });
         }
-    } catch (err) { res.render('login', { error: "Erreur serveur." }); }
+    } catch (err) {
+        res.render('login', { error: "Erreur lors de la connexion." });
+    }
 });
 
-// Route Accueil (Dashboard)
-app.get('/', async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
-    try {
-        const user = await User.findById(req.session.userId);
-        res.render('index', { user });
-    } catch (err) { res.redirect('/login'); }
-});
-
+// Déconnexion
 app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/login');
 });
 
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Serveur actif sur port ${PORT}`));
+// --- ROUTE PRINCIPALE (DASHBOARD) ---
+app.get('/', async (req, res) => {
+    // Vérifie si l'utilisateur est connecté
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
+    
+    try {
+        // Récupère les infos (dont les coins) pour l'affichage
+        const user = await User.findById(req.session.userId);
+        res.render('index', { user });
+    } catch (err) {
+        res.redirect('/login');
+    }
+});
+
+// --- DÉMARRAGE DU SERVEUR ---
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+});
