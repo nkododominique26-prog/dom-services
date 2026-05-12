@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     coins: { type: Number, default: 0 },
-    role: { type: String, default: 'client' }, // 'client' ou 'admin'
+    role: { type: String, default: 'client' }, // 'admin' ou 'client'
     createdAt: { type: Date, default: Date.now }
 });
 
