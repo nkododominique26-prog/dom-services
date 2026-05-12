@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><title>Recharger - Mr Dom's</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-[#0f111a] text-white min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-[#161926] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
+        <h1 class="text-2xl font-black mb-2 text-center text-purple-500">RECHARGE</h1>
+        <p class="text-gray-500 text-sm text-center mb-8">Choisissez votre montant</p>
+
+        <form action="/recharge-request" method="POST" class="space-y-5">
+            <div>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">Montant FCFA</label>
+                <input type="number" name="amount" required placeholder="Ex: 2500" 
+                       class="w-full bg-[#0f111a] border border-white/5 rounded-2xl px-5 py-4 focus:border-purple-600 outline-none transition font-bold">
+            </div>
+            
+            <div>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">Opérateur</label>
+                <select name="method" class="w-full bg-[#0f111a] border border-white/5 rounded-2xl px-5 py-4 focus:border-purple-600 outline-none transition font-bold">
+                    <option value="Orange Money">Orange Money</option>
+                    <option value="MTN MoMo">MTN MoMo</option>
+                </select>
+            </div>
+
+            <div class="bg-purple-600/10 p-4 rounded-2xl border border-purple-500/20">
+                <p class="text-[11px] text-purple-400 leading-relaxed">
+                    <i class="fas fa-shield-alt mr-2"></i> Après validation, envoyez la capture d'écran sur WhatsApp. L'argent sera libéré après vérification.
+                </p>
+            </div>
+
+            <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 py-4 rounded-2xl font-black shadow-lg shadow-purple-600/20 transition active:scale-95">
+                CONTINUER VERS WHATSAPP
+            </button>
+        </form>
+        <a href="/" class="block text-center mt-6 text-xs text-gray-500 hover:text-white transition">Retour au tableau de bord</a>
+    </div>
+</body>
+</html>
