@@ -6,15 +6,13 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
-// Import du modèle User (Vérifie que le dossier 'models' existe sur GitHub)
+// Import du modèle User
 const User = require('./models/User');
 
 const app = express();
-
-// --- CONFIGURATION PORT POUR RENDER ---
-// Render utilise le port 10000 par défaut, ce code permet de le détecter
 const PORT = process.env.PORT || 10000;
 
+// Configuration
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set('view engine', 'ejs');
@@ -25,25 +23,27 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✅ BDD Connectée"))
     .catch(err => console.error("❌ Erreur BDD:", err));
 
+// Sessions
 app.use(session({
-    secret: 'dom_secret_key',
+    secret: 'dom_secret_key_2026',
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI })
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
+    cookie: { maxAge: 1000 * 60 * 60 * 24 } // 24h
 }));
 
-// --- ROUTES ---
-
+// Routes Authentification
 app.get('/register', (req, res) => res.render('register', { error: null }));
 
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        await User.create({ username: username.trim(), password: hashedPassword });
-        res.redirect('/login');
+        const newUser = await User.create({ username: username.trim(), password: hashedPassword });
+        req.session.userId = newUser._id;
+        res.redirect('/');
     } catch (err) {
-        res.render('register', { error: "Nom déjà pris ou erreur BDD." });
+        res.render('register', { error: "Nom d'utilisateur déjà pris." });
     }
 });
 
@@ -62,12 +62,18 @@ app.post('/login', async (req, res) => {
     } catch (err) { res.render('login', { error: "Erreur serveur." }); }
 });
 
-app.get('/', (req, res) => {
+// Route Accueil (Dashboard)
+app.get('/', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
-    res.send("<h1>Bienvenue sur votre espace Dom's Services !</h1>");
+    try {
+        const user = await User.findById(req.session.userId);
+        res.render('index', { user });
+    } catch (err) { res.redirect('/login'); }
 });
 
-// ÉCOUTE SUR LE PORT DÉTECTÉ
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Serveur actif sur le port ${PORT}`);
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/login');
 });
+
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Serveur actif sur port ${PORT}`));
