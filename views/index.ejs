@@ -3,186 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Mr Dom's</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* Scrollbar personnalisée pour un look pro */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #0f111a; }
-        ::-webkit-scrollbar-thumb { background: #3b324d; border-radius: 10px; }
-    </style>
+    <title>MR DOM'S | Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css"> <script src="https://kit.fontawesome.com/your-code.js" crossorigin="anonymous"></script>
 </head>
-<body class="bg-[#0f111a] text-white font-sans flex min-h-screen overflow-x-hidden">
+<body>
 
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#161926] border-r border-white/5 transform -translate-x-full transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex md:flex-col">
-        <div class="p-6">
-            <div class="flex items-center justify-between mb-10">
-                <div class="flex items-center gap-3">
-                    <div class="bg-purple-600 p-2 rounded-lg shadow-lg shadow-purple-600/20">
-                        <i class="fas fa-bolt text-xl text-white"></i>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>MR DOM'S</h2>
+            </div>
+            <ul>
+                <li class="<%= page === 'dashboard' ? 'active' : '' %>">
+                    <a href="/"><i class="fas fa-home"></i> Dashboard</a>
+                </li>
+                <li><a href="#"><i class="fas fa-list"></i> Liste des Tarifs</a></li>
+                <li><a href="#"><i class="fas fa-plus-circle"></i> Publier Article</a></li>
+                <li><a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header>
+                <div class="user-profile">
+                    <div class="avatar">
+                        <%= user.username.substring(0, 2).toUpperCase() %>
                     </div>
-                    <span class="text-xl font-bold tracking-tight text-purple-500">MR DOM'S</span>
+                    <span>Bienvenue, <%= user.username %></span>
                 </div>
-                <button onclick="toggleSidebar()" class="md:hidden text-gray-400 text-2xl">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
+            </header>
 
-            <div class="flex items-center gap-3 p-3 bg-white/5 rounded-2xl mb-8 border border-white/5">
-                <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center font-bold text-sm shadow-inner">
-                    <%= user.username.substring(0, 2).toUpperCase() %>
-                </div>
-                <div class="overflow-hidden">
-                    <p class="text-sm font-bold truncate"><%= user.username %></p>
-                    <span class="text-[10px] bg-purple-600/30 text-purple-400 px-2 py-0.5 rounded-full uppercase font-bold">Client</span>
-                </div>
-            </div>
+            <section class="content-area">
+                <div class="publish-box">
+                    <h3>Publier un nouveau service</h3>
+                    <form action="/publier-article" method="POST">
+                        <input type="text" name="title" placeholder="Titre (ex: 1000 Abonnés TikTok)" required>
+                        
+                        <select name="category">
+                            <option value="TikTok">TikTok</option>
+                            <option value="Instagram">Instagram</option>
+                            <option value="Facebook">Facebook</option>
+                            <option value="IPTV">IPTV</option>
+                            <option value="Autre">Autre</option>
+                        </select>
 
-            <nav class="space-y-2">
-                <a href="/" class="flex items-center gap-3 p-3 rounded-xl transition <%= page === 'dashboard' ? 'bg-gradient-to-r from-purple-600/20 to-transparent border-l-4 border-purple-600 text-white' : 'text-gray-400 hover:bg-white/5' %>">
-                    <i class="fas fa-chart-pie w-5"></i> Dashboard
-                </a>
-                <a href="/tarifs" class="flex items-center gap-3 p-3 rounded-xl text-gray-400 hover:bg-white/5 transition">
-                    <i class="fas fa-tags w-5"></i> Liste des Tarifs
-                </a>
-                <a href="/buy-coins" class="flex items-center gap-3 p-3 rounded-xl text-gray-400 hover:bg-white/5 transition">
-                    <i class="fas fa-plus-circle w-5 text-green-500"></i> Acheter Coins
-                </a>
-                <a href="/post-article" class="flex items-center gap-3 p-3 rounded-xl text-gray-400 hover:bg-white/5 transition">
-                    <i class="fas fa-edit w-5"></i> Publier Article
-                </a>
-                <% if(user.username === 'Doms') { %>
-                <a href="/admin/articles" class="flex items-center gap-3 p-3 rounded-xl text-yellow-500 hover:bg-yellow-500/10 transition border border-yellow-500/10 mt-4">
-                    <i class="fas fa-user-shield w-5"></i> Admin Approbation
-                </a>
-                <% } %>
-            </nav>
-        </div>
-
-        <div class="mt-auto p-6 border-t border-white/5">
-            <a href="/logout" class="flex items-center gap-3 text-gray-500 hover:text-red-400 transition font-semibold">
-                <i class="fas fa-sign-out-alt"></i> Déconnexion
-            </a>
-        </div>
-    </aside>
-
-    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden backdrop-blur-sm"></div>
-
-    <main class="flex-1 flex flex-col min-w-0">
-        <header class="p-4 bg-[#161926]/80 backdrop-blur-md flex justify-between items-center border-b border-white/5 sticky top-0 z-30">
-            <button onclick="toggleSidebar()" class="md:hidden text-2xl text-gray-300 active:scale-90 transition">
-                <i class="fas fa-bars"></i>
-            </button>
-            <span class="font-black text-purple-500 md:hidden tracking-tighter">MR DOM'S</span>
-            
-            <div class="flex items-center gap-3 bg-[#0f111a] px-4 py-2 rounded-2xl border border-white/10 shadow-lg">
-                <i class="fas fa-wallet text-purple-500 text-xs"></i>
-                <span class="text-white font-black text-sm"><%= user.coins %> <span class="text-purple-400">FCFA</span></span>
-            </div>
-        </header>
-
-        <div class="p-6 md:p-10 max-w-6xl mx-auto w-full">
-            <div class="mb-10">
-                <h2 class="text-3xl font-black mb-2">Tableau de Bord</h2>
-                <p class="text-gray-500 text-sm">Gérez vos services et articles en toute simplicité.</p>
-            </div>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
-                <div class="bg-[#161926] p-6 rounded-[2rem] border border-white/5 relative group overflow-hidden shadow-xl">
-                    <div class="absolute -right-4 -top-4 text-pink-500/10 group-hover:rotate-12 transition-transform duration-500">
-                        <i class="fab fa-tiktok text-9xl"></i>
-                    </div>
-                    <div class="relative z-10">
-                        <span class="text-[10px] bg-pink-500/20 text-pink-500 px-3 py-1 rounded-full font-black uppercase mb-4 inline-block">Populaire</span>
-                        <h3 class="font-black text-xl mb-1">Boost TikTok/Insta</h3>
-                        <p class="text-gray-500 text-xs mb-6">Vues, Likes et Followers certifiés.</p>
-                        <button class="w-full bg-purple-600 hover:bg-purple-700 py-4 rounded-2xl transition font-black text-sm shadow-lg shadow-purple-600/20 active:scale-95">Commander</button>
-                    </div>
+                        <input type="number" name="price" placeholder="Prix en FCFA" required>
+                        <textarea name="description" placeholder="Description du service..." required></textarea>
+                        
+                        <button type="submit" class="btn-publish">Mettre en ligne</button>
+                    </form>
                 </div>
 
-                <div class="bg-[#161926] p-6 rounded-[2rem] border border-white/5 relative group overflow-hidden shadow-xl text-white">
-                    <div class="absolute -right-4 -top-4 text-red-500/10 group-hover:rotate-12 transition-transform duration-500">
-                        <i class="fas fa-tv text-9xl"></i>
-                    </div>
-                    <div class="relative z-10">
-                        <span class="text-[10px] bg-red-500/20 text-red-500 px-3 py-1 rounded-full font-black uppercase mb-4 inline-block">Premium</span>
-                        <h3 class="font-black text-xl mb-1">Netflix / IPTV</h3>
-                        <p class="text-gray-500 text-xs mb-6">Comptes 4K Ultra HD garantis.</p>
-                        <button class="w-full bg-white/5 hover:bg-white/10 py-4 rounded-2xl transition font-black text-sm border border-white/10 active:scale-95">Commander</button>
-                    </div>
-                </div>
-            </div>
+                <hr>
 
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-black flex items-center gap-3">
-                    <span class="w-2 h-8 bg-purple-600 rounded-full"></span>
-                    Articles Récents
-                </h3>
-            </div>
-
-            <div class="grid grid-cols-1 gap-6">
-                <% articles.forEach(article => { %>
-                    <div class="bg-[#161926] p-7 rounded-[2rem] border border-white/5 shadow-2xl transition-all duration-300 hover:border-purple-600/40 group">
-                        <div class="flex justify-between items-start gap-4">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-8 h-8 bg-purple-600/20 rounded-full flex items-center justify-center text-[10px] font-bold text-purple-400 border border-purple-500/20">
-                                        <%= article.author.username.substring(0, 2).toUpperCase() %>
-                                    </div>
-                                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest"><%= article.author.username %></p>
+                <div class="articles-grid">
+                    <% if (articles && articles.length > 0) { %>
+                        <% articles.forEach(article => { %>
+                            <div class="card">
+                                <div class="card-header">
+                                    <span class="category-tag"><%= article.category %></span>
+                                    <form action="/supprimer-article/<%= article._id %>" method="POST" onsubmit="return confirm('Supprimer ce service ?')">
+                                        <button type="submit" class="delete-icon">×</button>
+                                    </form>
                                 </div>
-                                <h4 class="font-black text-xl text-white mb-2 group-hover:text-purple-400 transition-colors"><%= article.title %></h4>
-                                <p class="text-gray-400 text-sm leading-relaxed"><%= article.content %></p>
+                                <h4><%= article.title %></h4>
+                                <p><%= article.description %></p>
+                                <div class="card-footer">
+                                    <span class="price"><%= article.price %> FCFA</span>
+                                    <button class="btn-order">Commander</button>
+                                </div>
                             </div>
-                            <% if(article.price) { %>
-                                <div class="text-right">
-                                    <p class="text-2xl font-black text-green-500"><%= article.price %><span class="text-xs ml-1">F</span></p>
-                                    <span class="text-[9px] text-gray-600 font-bold uppercase">Prix Fixe</span>
-                                </div>
-                            <% } %>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <p>Aucun service publié pour le moment.</p>
                         </div>
-                    </div>
-                <% }) %>
-                
-                <% if (articles.length === 0) { %>
-                    <div class="text-center py-16 bg-white/5 rounded-[2.5rem] border border-dashed border-white/10">
-                        <i class="fas fa-box-open text-5xl text-gray-700 mb-4"></i>
-                        <p class="text-gray-500 font-medium">Aucun article n'a encore été publié et validé.</p>
-                    </div>
-                <% } %>
-            </div>
-        </div>
-
-        <div class="p-6 md:p-10 bg-[#161926] border-t border-white/5">
-            <div class="bg-gradient-to-br from-purple-900/20 to-transparent p-8 rounded-[2.5rem] border border-purple-500/10 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div class="text-center md:text-left">
-                    <h4 class="text-xl font-black mb-1 text-white">Un problème ou besoin de Coins ?</h4>
-                    <p class="text-gray-500 text-sm">L'assistance Mr Dom's est disponible 24h/7j sur WhatsApp.</p>
+                    <% } %>
                 </div>
-                <a href="https://wa.me/2376XXXXXXXX" class="bg-green-600 hover:bg-green-700 px-10 py-4 rounded-2xl font-black transition shadow-lg shadow-green-600/20 flex items-center gap-3 active:scale-95">
-                    <i class="fab fa-whatsapp text-2xl"></i> Contact Admin
-                </a>
-            </div>
-        </div>
-    </main>
+            </section>
+        </main>
+    </div>
 
-    <script>
-        // Gestion de l'ouverture/fermeture Sidebar Mobile
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Empêche le scroll derrière
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-                document.body.style.overflow = ''; 
-            }
-        }
-    </script>
 </body>
 </html>
