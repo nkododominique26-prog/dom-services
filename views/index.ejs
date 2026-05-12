@@ -6,50 +6,84 @@
     <title>Dashboard - Mr Dom's</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        // Configuration Tailwind pour des coins arrondis plus doux
+        tailwind.config = {
+            theme: {
+                extend: {
+                    borderRadius: {
+                        '2xl': '1rem',
+                        '3xl': '1.5rem',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-[#1a1625] text-white">
+<body class="bg-[#1a1625] text-white font-sans min-h-screen">
 
-    <nav class="bg-[#241e35] p-4 flex justify-between items-center border-b border-white/5">
-        <h1 class="text-xl font-bold text-purple-500">MR DOM'S</h1>
+    <nav class="bg-[#241e35] p-4 flex justify-between items-center border-b border-white/5 sticky top-0 z-50">
+        <h1 class="text-xl font-bold text-purple-500 uppercase tracking-wider">MR DOM'S</h1>
         <div class="flex items-center gap-4">
-            <span class="bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm font-bold">
-                <%= user.coins %> FCFA
+            <span class="bg-[#1a1625] border border-white/5 text-gray-300 px-4 py-2 rounded-full text-sm font-semibold flex items-center">
+                <i class="fas fa-coins mr-2 text-purple-400"></i> <%= user.coins %> FCFA
             </span>
-            <a href="/logout" class="text-gray-400"><i class="fas fa-sign-out-alt"></i></a>
+            <a href="/logout" class="text-gray-400 hover:text-white transition-colors duration-200">
+                <i class="fas fa-sign-out-alt text-lg"></i>
+            </a>
         </div>
     </nav>
 
-    <div class="p-6 max-w-4xl mx-auto">
-        <h2 class="text-lg font-semibold mb-6">Services Disponibles</h2>
+    <div class="p-6 max-w-4xl mx-auto space-y-6">
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-[#241e35] p-5 rounded-2xl border border-white/5 hover:border-purple-500 transition">
-                <div class="flex justify-between mb-4">
-                    <div class="bg-pink-500/20 p-3 rounded-xl text-pink-500"><i class="fab fa-tiktok text-2xl"></i></div>
-                    <span class="text-green-500 font-bold">Dès 100 F</span>
+        <h2 class="text-lg font-semibold text-gray-200">Services Disponibles</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            
+            <div class="bg-[#241e35] p-6 rounded-2xl border border-white/5 shadow-xl transition hover:border-purple-600 group">
+                <div class="flex justify-between items-start mb-5">
+                    <div class="bg-[#1a1625] p-3 rounded-2xl text-pink-500 border border-white/5">
+                        <i class="fab fa-tiktok text-2xl"></i>
+                    </div>
+                    <span class="text-green-500 font-bold text-sm bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20">
+                        Dès 100 F
+                    </span>
                 </div>
-                <h3 class="font-bold">Boost TikTok/Insta</h3>
-                <p class="text-gray-400 text-sm mb-4">Abonnés et vues rapides.</p>
-                <button class="w-full bg-purple-600 py-3 rounded-xl font-bold">Commander</button>
+                <h3 class="font-bold text-lg mb-1 group-hover:text-purple-400 transition-colors">Boost TikTok/Insta</h3>
+                <p class="text-gray-400 text-sm mb-5">Abonnés, Vues et Likes certifiés.</p>
+                <button class="w-full bg-purple-600 py-3.5 rounded-xl font-bold hover:bg-purple-700 transition shadow-lg shadow-purple-600/20 active:scale-95">
+                    Commander
+                </button>
             </div>
 
-            <div class="bg-[#241e35] p-5 rounded-2xl border border-white/5 hover:border-purple-500 transition">
-                <div class="flex justify-between mb-4">
-                    <div class="bg-red-500/20 p-3 rounded-xl text-red-500"><i class="fas fa-tv text-2xl"></i></div>
-                    <span class="text-green-500 font-bold">2500 F</span>
+            <div class="bg-[#241e35] p-6 rounded-2xl border border-white/5 shadow-xl transition hover:border-purple-600 group">
+                <div class="flex justify-between items-start mb-5">
+                    <div class="bg-[#1a1625] p-3 rounded-2xl text-red-500 border border-white/5">
+                        <i class="fas fa-tv text-2xl"></i>
+                    </div>
+                    <span class="text-green-500 font-bold text-sm bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20">
+                        2500 F
+                    </span>
                 </div>
-                <h3 class="font-bold">Netflix / IPTV</h3>
-                <p class="text-gray-400 text-sm mb-4">Comptes Premium 4K.</p>
-                <button class="w-full bg-purple-600 py-3 rounded-xl font-bold">Commander</button>
+                <h3 class="font-bold text-lg mb-1 group-hover:text-purple-400 transition-colors">Netflix / IPTV</h3>
+                <p class="text-gray-400 text-sm mb-5">Comptes Premium 4K.</p>
+                <button class="w-full bg-purple-600 py-3.5 rounded-xl font-bold hover:bg-purple-700 transition shadow-lg shadow-purple-600/20 active:scale-95">
+                    Commander
+                </button>
             </div>
+
         </div>
 
-        <div class="mt-8 bg-purple-900/20 p-6 rounded-3xl border border-purple-500/30 text-center">
-            <p class="text-sm mb-4">Pour recharger votre solde Mobile Money :</p>
-            <a href="https://wa.me/2376XXXXXXXX" class="bg-green-600 px-6 py-3 rounded-xl font-bold inline-block">
-                <i class="fab fa-whatsapp mr-2"></i>Contact Admin
+        <div class="mt-8 bg-gradient-to-r from-purple-900/40 to-blue-900/40 p-7 rounded-3xl border border-white/10 text-center shadow-xl">
+            <h3 class="font-bold mb-2">Besoin de recharger votre solde ?</h3>
+            <p class="text-sm text-gray-300 mb-6">Envoyez votre paiement via Mobile Money (Orange/MTN).</p>
+            <a href="https://wa.me/2376XXXXXXXX" target="_blank" 
+               class="inline-flex items-center gap-3 bg-green-600 px-8 py-4 rounded-full font-bold hover:bg-green-700 transition shadow-lg shadow-green-600/30 active:scale-95">
+                <i class="fab fa-whatsapp text-xl"></i> Contact Admin
             </a>
         </div>
+
     </div>
+
 </body>
 </html>
