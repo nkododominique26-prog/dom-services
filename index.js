@@ -6,105 +6,87 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const bcrypt = require('bcryptjs');
 
-// Import du modèle unique pour commencer
+// Import des modèles
 const User = require('./models/User');
+const Article = require('./models/Article');
+const Deposit = require('./models/Deposit');
 
 const app = express();
 
-// --- CONFIGURATION ---
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// --- CONNEXION BDD ---
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✅ BDD Connectée"))
     .catch(err => console.error("❌ Erreur BDD:", err));
 
-// --- GESTION DES SESSIONS ---
 app.use(session({
     secret: process.env.SESSION_SECRET || 'doms_secret_2026',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-    cookie: { 
-        maxAge: 1000 * 60 * 60 * 24, // 24 heures
-        secure: process.env.NODE_ENV === 'production' // Sécurité accrue sur Render
-    }
+    cookie: { maxAge: 1000 * 60 * 60 * 24 }
 }));
 
-// --- ROUTES ---
+// --- ROUTES POUR CHAQUE MENU ---
 
-// Accueil (Dashboard)
+// 1. Dashboard (Accueil)
 app.get('/', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
-    try {
-        const user = await User.findById(req.session.userId);
-        if (!user) return res.redirect('/login');
-        
-        // On envoie 'user', 'page' et 'articles' (vide) pour éviter les erreurs EJS
-        res.render('index', { 
-            user: user, 
-            page: 'dashboard',
-            articles: [] 
-        });
-    } catch (err) {
-        console.error("Erreur Dashboard:", err);
-        res.redirect('/login');
-    }
+    const user = await User.findById(req.session.userId);
+    const articles = await Article.find().sort({ createdAt: -1 });
+    res.render('index', { user, articles, page: 'dashboard' });
 });
 
-// Inscription
-app.get('/register', (req, res) => {
-    res.render('register', { error: null });
+// 2. Liste des Tarifs
+app.get('/tarifs', async (req, res) => {
+    if (!req.session.userId) return res.redirect('/login');
+    const user = await User.findById(req.session.userId);
+    const articles = await Article.find();
+    res.render('index', { user, articles, page: 'tarifs' });
 });
 
-app.post('/register', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        // Hachage du mot de passe pour la sécurité
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await User.create({ 
-            username, 
-            password: hashedPassword,
-            balance: 0 // Initialisation du portefeuille à 0
-        });
-        res.redirect('/login');
-    } catch (err) {
-        res.render('register', { error: "Cet utilisateur existe déjà." });
-    }
+// 3. Acheter Coins (Recharge)
+app.get('/recharge', async (req, res) => {
+    if (!req.session.userId) return res.redirect('/login');
+    const user = await User.findById(req.session.userId);
+    res.render('index', { user, page: 'recharge', articles: [] });
 });
 
-// Connexion
-app.get('/login', (req, res) => {
-    res.render('login', { error: null });
+// 4. Publier Article (Formulaire admin)
+app.get('/publier', async (req, res) => {
+    if (!req.session.userId) return res.redirect('/login');
+    const user = await User.findById(req.session.userId);
+    res.render('index', { user, page: 'publier', articles: [] });
+});
+
+// 5. Admin Approbation (Validation des paiements)
+app.get('/approbation', async (req, res) => {
+    if (!req.session.userId) return res.redirect('/login');
+    const user = await User.findById(req.session.userId);
+    const deposits = await Deposit.find({ status: 'en_attente' }).populate('userId');
+    res.render('index', { user, deposits, page: 'approbation', articles: [] });
+});
+
+// --- ACTIONS (POST) ---
+
+app.post('/add-service', async (req, res) => {
+    const { title, category, price, description } = req.body;
+    await Article.create({ title, category, price, description });
+    res.redirect('/');
 });
 
 app.post('/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const user = await User.findOne({ username });
-        
-        if (user && await bcrypt.compare(password, user.password)) {
-            req.session.userId = user._id;
-            return res.redirect('/');
-        }
-        res.render('login', { error: "Nom d'utilisateur ou mot de passe incorrect." });
-    } catch (err) {
-        res.render('login', { error: "Un problème est survenu sur le serveur." });
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    if (user && await bcrypt.compare(password, user.password)) {
+        req.session.userId = user._id;
+        return res.redirect('/');
     }
-});
-
-// Déconnexion
-app.get('/logout', (req, res) => {
-    req.session.destroy();
     res.redirect('/login');
 });
 
-// --- DÉMARRAGE ---
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Serveur Mr Dom's lancé sur le port ${PORT}`);
-});
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 MR DOM'S opérationnel`));
