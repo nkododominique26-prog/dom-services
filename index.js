@@ -6,77 +6,55 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const bcrypt = require('bcryptjs');
 
-// Importation des modèles
 const User = require('./models/User');
 const Article = require('./models/Article'); 
 
 const app = express();
 
-// --- CONFIGURATION ---
+// Configuration Express
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// --- CONNEXION BDD ---
+// Connexion MongoDB
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✅ BDD Connectée"))
     .catch(err => console.error("❌ Erreur BDD:", err));
 
-// --- SESSIONS ---
+// Sessions
 app.use(session({
     secret: process.env.SESSION_SECRET || 'doms_secret_2026',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-    cookie: { maxAge: 1000 * 60 * 60 * 24 } // 1 jour
+    cookie: { maxAge: 1000 * 60 * 60 * 24 }
 }));
 
 // --- ROUTES ---
 
-// 1. DASHBOARD (Accueil)
+// Accueil & Dashboard
 app.get('/', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     try {
         const user = await User.findById(req.session.userId);
-        // Récupère les articles du plus récent au plus ancien
         const articles = await Article.find().sort({ createdAt: -1 });
-        
-        res.render('index', { 
-            user: user, 
-            page: 'dashboard',
-            articles: articles 
-        });
-    } catch (err) {
-        res.redirect('/login');
-    }
+        res.render('index', { user, page: 'dashboard', articles });
+    } catch (err) { res.redirect('/login'); }
 });
 
-// 2. PUBLIER UN ARTICLE
+// Publier un service
 app.post('/publier-article', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     try {
         const { title, description, price, category } = req.body;
         await Article.create({ title, description, price, category });
-        res.redirect('/'); // Redirige vers l'accueil pour voir l'article publié
-    } catch (err) {
-        res.status(500).send("Erreur lors de la publication : " + err.message);
-    }
+        res.redirect('/');
+    } catch (err) { res.status(500).send("Erreur de publication"); }
 });
 
-// 3. SUPPRIMER UN ARTICLE
-app.post('/supprimer-article/:id', async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
-    try {
-        await Article.findByIdAndDelete(req.params.id);
-        res.redirect('/');
-    } catch (err) {
-        res.redirect('/');
-    }
-});
-
-// 4. AUTHENTIFICATION
+// Auth
 app.get('/login', (req, res) => res.render('login', { error: null }));
 app.get('/register', (req, res) => res.render('register', { error: null }));
 
@@ -86,23 +64,17 @@ app.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         await User.create({ username, password: hashedPassword });
         res.redirect('/login');
-    } catch (err) {
-        res.render('register', { error: "Nom d'utilisateur déjà pris" });
-    }
+    } catch (err) { res.render('register', { error: "Déjà utilisé" }); }
 });
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    try {
-        const user = await User.findOne({ username });
-        if (user && await bcrypt.compare(password, user.password)) {
-            req.session.userId = user._id;
-            return res.redirect('/');
-        }
-        res.render('login', { error: "Identifiants incorrects" });
-    } catch (err) {
-        res.render('login', { error: "Erreur serveur" });
+    const user = await User.findOne({ username });
+    if (user && await bcrypt.compare(password, user.password)) {
+        req.session.userId = user._id;
+        return res.redirect('/');
     }
+    res.render('login', { error: "Identifiants incorrects" });
 });
 
 app.get('/logout', (req, res) => {
@@ -110,6 +82,5 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
-// --- DÉMARRAGE ---
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 MR DOM'S EN LIGNE SUR PORT ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 MR DOM'S EN LIGNE`));
