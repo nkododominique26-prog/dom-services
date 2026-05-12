@@ -1,11 +1,9 @@
 {
   "name": "mr-doms-platform",
   "version": "1.0.0",
-  "description": "Base stable pour la plateforme de services",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
