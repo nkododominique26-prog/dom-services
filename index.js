@@ -6,55 +6,51 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
-// Import des modèles
+// Modèles (Assure-toi que les fichiers existent dans le dossier /models)
 const User = require('./models/User');
 
 const app = express();
 
-// --- CONFIGURATION ---
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("✅ Connecté à MongoDB"))
-    .catch(err => console.error("❌ Erreur MongoDB:", err));
-
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
-// Indispensable pour lire les données des formulaires
+// --- CONFIGURATION CRITIQUE ---
+// Ces deux lignes empêchent le retour du "code blanc" après un clic
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Configuration des sessions
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log("✅ BDD Connectée"))
+    .catch(err => console.error("❌ Erreur BDD:", err));
+
 app.use(session({
     secret: 'dom_secret_key_2026',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-    cookie: { maxAge: 1000 * 60 * 60 * 24 } // 24 heures
+    cookie: { maxAge: 1000 * 60 * 60 * 24 }
 }));
 
-// Middleware pour rendre l'utilisateur accessible dans toutes les pages EJS
+// Middleware pour l'utilisateur
 app.use(async (req, res, next) => {
     res.locals.user = null;
-    res.locals.error = null;
     if (req.session.userId) {
         try {
             res.locals.user = await User.findById(req.session.userId);
-        } catch (err) {
-            req.session.userId = null;
-        }
+        } catch (err) { req.session.userId = null; }
     }
     next();
 });
 
-// --- ROUTES AUTHENTIFICATION ---
+// --- ROUTES ---
 
-// Page d'inscription (Affiche le formulaire)
-app.get('/register', (req, res) => {
-    res.render('register', { error: null });
+app.get('/', (req, res) => {
+    if (!req.session.userId) return res.redirect('/login');
+    res.render('index', { user: res.locals.user });
 });
 
-// Traitement de l'inscription (Quand on clique sur le bouton)
+app.get('/register', (req, res) => res.render('register', { error: null }));
+
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -67,15 +63,12 @@ app.post('/register', async (req, res) => {
         res.redirect('/');
     } catch (err) {
         let msg = "Erreur d'inscription.";
-        if (err.code === 11000) msg = "Ce nom d'utilisateur est déjà utilisé.";
+        if (err.code === 11000) msg = "Ce nom d'utilisateur est déjà pris.";
         res.render('register', { error: msg });
     }
 });
 
-// Page de connexion
-app.get('/login', (req, res) => {
-    res.render('login', { error: null });
-});
+app.get('/login', (req, res) => res.render('login', { error: null }));
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -88,7 +81,7 @@ app.post('/login', async (req, res) => {
             res.render('login', { error: "Identifiants incorrects." });
         }
     } catch (err) {
-        res.render('login', { error: "Erreur de connexion." });
+        res.render('login', { error: "Erreur serveur." });
     }
 });
 
@@ -97,15 +90,5 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
-// --- ROUTE ACCUEIL (DASHBOARD) ---
-app.get('/', async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
-    // On passe l'utilisateur à la vue
-    res.render('index', { user: res.locals.user });
-});
-
-// --- LANCEMENT DU SERVEUR ---
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Live sur port ${PORT}`));
