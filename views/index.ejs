@@ -10,7 +10,7 @@
 <body class="dark-theme">
 
     <div class="app-container">
-        <!-- BARRE LATÉRALE (SIDEBAR) -->
+        <!-- BARRE LATÉRALE -->
         <aside class="sidebar">
             <div class="brand">
                 <i class="fas fa-bolt"></i>
@@ -29,16 +29,16 @@
                 <a href="/" class="<%= page === 'dashboard' ? 'active' : '' %>">
                     <i class="fas fa-chart-pie"></i> Dashboard
                 </a>
-                <a href="/tarifs" class="<%= page === 'tarifs' ? 'active' : '' %>">
+                <a href="/p/tarifs" class="<%= page === 'tarifs' ? 'active' : '' %>">
                     <i class="fas fa-tags"></i> Liste des Tarifs
                 </a>
-                <a href="/recharge" class="<%= page === 'recharge' ? 'active' : '' %>">
+                <a href="/p/recharge" class="<%= page === 'recharge' ? 'active' : '' %>">
                     <i class="fas fa-plus-circle"></i> Acheter Coins
                 </a>
-                <a href="/publier" class="<%= page === 'publier' ? 'active' : '' %>">
+                <a href="/p/publier" class="<%= page === 'publier' ? 'active' : '' %>">
                     <i class="fas fa-edit"></i> Publier Article
                 </a>
-                <a href="/approbation" class="admin-only <%= page === 'approbation' ? 'active' : '' %>">
+                <a href="/p/approbation" class="<%= page === 'approbation' ? 'active' : '' %>">
                     <i class="fas fa-user-shield"></i> Admin Approbation
                 </a>
             </nav>
@@ -48,11 +48,13 @@
             </a>
         </aside>
 
-        <!-- CONTENU PRINCIPAL -->
+        <!-- CONTENU -->
         <main class="content">
             <% if (page === 'dashboard') { %>
-                <h2>Bienvenue sur votre Dashboard</h2>
-                <!-- Tes stats et articles ici -->
+                <h2>Dashboard</h2>
+                <div class="stats-grid">
+                    <!-- Tes cartes de statistiques ici -->
+                </div>
             <% } else if (page === 'publier') { %>
                 <div class="form-card">
                     <h3>Nouveau Service</h3>
@@ -61,12 +63,16 @@
                         <select name="category">
                             <option value="TikTok Boost">TikTok Boost</option>
                             <option value="Instagram">Instagram</option>
+                            <option value="Facebook">Facebook</option>
                         </select>
                         <input type="number" name="price" placeholder="Prix (FCFA)" required>
-                        <textarea name="description" placeholder="Détails..."></textarea>
+                        <textarea name="description" placeholder="Détails du service..."></textarea>
                         <button type="submit" class="btn-publish">Publier</button>
                     </form>
                 </div>
+            <% } else if (page === 'tarifs') { %>
+                <h2>Liste des Tarifs</h2>
+                <!-- Boucle sur articles -->
             <% } %>
         </main>
     </div>
