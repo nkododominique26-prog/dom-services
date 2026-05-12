@@ -2,53 +2,59 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
-const multer = require('multer');
-const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
-// Modèles
-const Service = require('./models/Service');
+// Import des modèles
 const User = require('./models/User');
-const Transaction = require('./models/Transaction');
 
 const app = express();
 
 // --- CONFIGURATION ---
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("✅ BDD Connectée"))
-    .catch(err => console.error("❌ Erreur BDD:", err));
+    .then(() => console.log("✅ Connecté à MongoDB"))
+    .catch(err => console.error("❌ Erreur MongoDB:", err));
 
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Indispensable pour lire les données des formulaires
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Sessions
+// Configuration des sessions
 app.use(session({
-    secret: 'dom_secret_key_237',
+    secret: 'dom_secret_key_2026',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-    cookie: { maxAge: 1000 * 60 * 60 * 24 } // 24h
+    cookie: { maxAge: 1000 * 60 * 60 * 24 } // 24 heures
 }));
 
-// Middleware pour l'utilisateur connecté
+// Middleware pour rendre l'utilisateur accessible dans toutes les pages EJS
 app.use(async (req, res, next) => {
     res.locals.user = null;
+    res.locals.error = null;
     if (req.session.userId) {
         try {
             res.locals.user = await User.findById(req.session.userId);
-        } catch (err) { req.session.userId = null; }
+        } catch (err) {
+            req.session.userId = null;
+        }
     }
     next();
 });
 
-// --- ROUTES AUTH ---
+// --- ROUTES AUTHENTIFICATION ---
 
-app.get('/register', (req, res) => res.render('register', { error: null }));
+// Page d'inscription (Affiche le formulaire)
+app.get('/register', (req, res) => {
+    res.render('register', { error: null });
+});
 
+// Traitement de l'inscription (Quand on clique sur le bouton)
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -61,12 +67,15 @@ app.post('/register', async (req, res) => {
         res.redirect('/');
     } catch (err) {
         let msg = "Erreur d'inscription.";
-        if (err.code === 11000) msg = "Ce nom d'utilisateur est déjà pris.";
+        if (err.code === 11000) msg = "Ce nom d'utilisateur est déjà utilisé.";
         res.render('register', { error: msg });
     }
 });
 
-app.get('/login', (req, res) => res.render('login', { error: null }));
+// Page de connexion
+app.get('/login', (req, res) => {
+    res.render('login', { error: null });
+});
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -78,7 +87,9 @@ app.post('/login', async (req, res) => {
         } else {
             res.render('login', { error: "Identifiants incorrects." });
         }
-    } catch (err) { res.render('login', { error: "Erreur serveur." }); }
+    } catch (err) {
+        res.render('login', { error: "Erreur de connexion." });
+    }
 });
 
 app.get('/logout', (req, res) => {
@@ -86,31 +97,15 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
-// --- ROUTES PRINCIPALES ---
-
+// --- ROUTE ACCUEIL (DASHBOARD) ---
 app.get('/', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
-    const services = await Service.find().sort({ createdAt: -1 });
-    res.render('index', { services });
+    // On passe l'utilisateur à la vue
+    res.render('index', { user: res.locals.user });
 });
 
-// --- ADMIN ---
-app.get('/admin/transactions', async (req, res) => {
-    if (!res.locals.user || res.locals.user.role !== 'admin') return res.redirect('/');
-    const transactions = await Transaction.find().sort({ createdAt: -1 });
-    res.render('admin_transactions', { transactions });
-});
-
-app.post('/admin/valider/:id', async (req, res) => {
-    if (!res.locals.user || res.locals.user.role !== 'admin') return res.redirect('/');
-    const trans = await Transaction.findById(req.params.id);
-    if (trans && trans.status === 'En attente') {
-        trans.status = 'Validé';
-        await trans.save();
-        await User.findByIdAndUpdate(trans.userId, { $inc: { coins: trans.amount } });
-    }
-    res.redirect('/admin/transactions');
-});
-
+// --- LANCEMENT DU SERVEUR ---
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Serveur actif`));
+app.listen(PORT, () => {
+    console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
+});
