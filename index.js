@@ -33,24 +33,41 @@ app.use(session({
 
 // --- ROUTES ---
 
-// Accueil (Correction : ajout de 'user' ET 'page')
+// Accueil (Correction : ajout de 'user', 'page' ET 'articles')
 app.get('/', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     try {
         const user = await User.findById(req.session.userId);
         if (!user) return res.redirect('/login');
         
-        // On envoie 'user' pour l'avatar et 'page' pour le menu
+        // On envoie toutes les variables dont EJS a besoin
         res.render('index', { 
             user: user, 
-            page: 'dashboard' 
+            page: 'dashboard',
+            articles: [] // On envoie un tableau vide pour éviter l'erreur 'not defined'
         });
     } catch (err) {
         res.redirect('/login');
     }
 });
 
-// Login
+// Inscription
+app.get('/register', (req, res) => {
+    res.render('register', { error: null });
+});
+
+app.post('/register', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await User.create({ username, password: hashedPassword });
+        res.redirect('/login');
+    } catch (err) {
+        res.render('register', { error: "Utilisateur déjà existant" });
+    }
+});
+
+// Connexion
 app.get('/login', (req, res) => {
     res.render('login', { error: null });
 });
@@ -69,26 +86,10 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Register
-app.get('/register', (req, res) => {
-    res.render('register', { error: null });
-});
-
-app.post('/register', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await User.create({ username, password: hashedPassword });
-        res.redirect('/login');
-    } catch (err) {
-        res.render('register', { error: "Utilisateur déjà existant" });
-    }
-});
-
 app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/login');
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Mr Dom's actif sur port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Mr Dom's opérationnel`));
