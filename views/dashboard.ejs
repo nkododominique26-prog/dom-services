@@ -1,0 +1,20 @@
+<div class="user-stats">
+    <div class="stat-card">
+        <span>Mon Solde</span>
+        <h2><%= user.balance %> Coins</h2>
+        <a href="/recharge" class="btn-recharge">Recharger +</a>
+    </div>
+</div>
+
+<h3>Mes Abonnements</h3>
+<div class="sub-list">
+    <% user.subscriptions.forEach(sub => { %>
+        <div class="sub-item <%= new Date(sub.expiryDate) < new Date() ? 'expired' : '' %>">
+            <p><strong><%= sub.serviceName %></strong></p>
+            <p>Expire le : <%= sub.expiryDate.toLocaleDateString() %></p>
+            <% if (new Date(sub.expiryDate) < new Date(Date.now() + 3*24*60*60*1000)) { %>
+                <span class="warning">⚠️ Expire bientôt !</span>
+            <% } %>
+        </div>
+    <% }) %>
+</div>
