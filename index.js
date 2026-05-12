@@ -53,7 +53,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// --- ROUTES AUTHENTIFICATION ---
+// --- ROUTES ---
 
 app.get('/register', (req, res) => res.render('register', { error: null }));
 
@@ -61,11 +61,7 @@ app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await User.create({ 
-            username: username.trim(), 
-            password: hashedPassword,
-            role: 'client'
-        });
+        const newUser = await User.create({ username: username.trim(), password: hashedPassword });
         req.session.userId = newUser._id;
         res.redirect('/');
     } catch (err) {
@@ -88,63 +84,13 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/login');
-});
-
-// --- ROUTES SERVICES ---
-
 app.get('/', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     const services = await Service.find().sort({ createdAt: -1 });
     res.render('index', { services });
 });
 
-app.get('/recharger', (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
-    res.render('recharger');
-});
-
-app.get('/payer/:amount', (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
-    res.render('paiement', { amount: req.params.amount });
-});
-
-app.post('/soumettre-preuve', upload.single('capture'), async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
-    const { amount } = req.body;
-    try {
-        await Transaction.create({
-            userId: req.session.userId,
-            username: res.locals.user.username,
-            amount: parseInt(amount),
-            proofImage: req.file ? req.file.filename : null
-        });
-        res.render('confirmation_paiement', { amount });
-    } catch (err) { res.status(500).send("Erreur d'envoi."); }
-});
-
-// --- ROUTES ADMIN ---
-
-app.get('/admin/transactions', async (req, res) => {
-    if (!res.locals.user || res.locals.user.role !== 'admin') return res.redirect('/');
-    const transactions = await Transaction.find().sort({ createdAt: -1 });
-    res.render('admin_transactions', { transactions });
-});
-
-app.post('/admin/valider/:id', async (req, res) => {
-    if (!res.locals.user || res.locals.user.role !== 'admin') return res.redirect('/');
-    try {
-        const trans = await Transaction.findById(req.params.id);
-        if (trans && trans.status === 'En attente') {
-            trans.status = 'Validé';
-            await trans.save();
-            await User.findByIdAndUpdate(trans.userId, { $inc: { coins: trans.amount } });
-        }
-        res.redirect('/admin/transactions');
-    } catch (err) { res.status(500).send("Erreur de validation."); }
-});
+// Ajoute ici tes routes /recharger, /payer, /admin...
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Serveur actif sur port ${PORT}`));
