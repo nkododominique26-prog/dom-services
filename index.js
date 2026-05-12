@@ -6,39 +6,35 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
-// Import du modèle User
+// Import des modèles
 const User = require('./models/User');
 
 const app = express();
+const PORT = process.env.PORT || 10000; // Correction port Render
 
-// --- CONFIGURATION PORT ---
-// Crucial pour Render : détecte le port 10000 automatiquement
-const PORT = process.env.PORT || 10000;
-
-// Middlewares
+// Middlewares vitaux
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- CONNEXION MONGODB ---
+// Connexion MongoDB
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("✅ Connecté à MongoDB"))
+    .then(() => console.log("✅ Base de données connectée"))
     .catch(err => console.error("❌ Erreur BDD:", err));
 
-// --- GESTION DES SESSIONS ---
+// Configuration des Sessions (Indispensable pour rester connecté)
 app.use(session({
-    secret: 'dom_secret_key_2026',
+    secret: 'kerm_secret_key_2026',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-    cookie: { maxAge: 1000 * 60 * 60 * 24 } // Session de 24h
+    cookie: { maxAge: 1000 * 60 * 60 * 24 } // Garde la session 24h
 }));
 
 // --- ROUTES AUTHENTIFICATION ---
 
-// Inscription
+// Page Inscription
 app.get('/register', (req, res) => {
     res.render('register', { error: null });
 });
@@ -49,17 +45,17 @@ app.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await User.create({ 
             username: username.trim(), 
-            password: hashedPassword 
+            password: hashedPassword,
+            coins: 0 // Solde initial
         });
         req.session.userId = newUser._id;
         res.redirect('/');
     } catch (err) {
-        // Gère l'erreur si le nom existe déjà
-        res.render('register', { error: "Ce nom d'utilisateur est déjà utilisé." });
+        res.render('register', { error: "Utilisateur déjà existant." });
     }
 });
 
-// Connexion
+// Page Connexion
 app.get('/login', (req, res) => {
     res.render('login', { error: null });
 });
@@ -72,10 +68,10 @@ app.post('/login', async (req, res) => {
             req.session.userId = user._id;
             res.redirect('/');
         } else {
-            res.render('login', { error: "Identifiants incorrects." });
+            res.render('login', { error: "Nom ou mot de passe incorrect." });
         }
     } catch (err) {
-        res.render('login', { error: "Erreur lors de la connexion." });
+        res.render('login', { error: "Erreur de connexion." });
     }
 });
 
@@ -85,23 +81,34 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
-// --- ROUTE PRINCIPALE (DASHBOARD) ---
+// --- ROUTES DASHBOARD (STYLE KERMHOSTING) ---
+
 app.get('/', async (req, res) => {
-    // Vérifie si l'utilisateur est connecté
-    if (!req.session.userId) {
-        return res.redirect('/login');
-    }
-    
+    if (!req.session.userId) return res.redirect('/login');
     try {
-        // Récupère les infos (dont les coins) pour l'affichage
         const user = await User.findById(req.session.userId);
-        res.render('index', { user });
+        // On affiche le dashboard avec les données utilisateur
+        res.render('index', { user, page: 'dashboard' });
     } catch (err) {
         res.redirect('/login');
     }
 });
 
-// --- DÉMARRAGE DU SERVEUR ---
+// Route Tarifs
+app.get('/tarifs', async (req, res) => {
+    if (!req.session.userId) return res.redirect('/login');
+    const user = await User.findById(req.session.userId);
+    res.render('index', { user, page: 'tarifs' });
+});
+
+// Route Acheter des coins
+app.get('/buy-coins', async (req, res) => {
+    if (!req.session.userId) return res.redirect('/login');
+    const user = await User.findById(req.session.userId);
+    res.render('index', { user, page: 'buy-coins' });
+});
+
+// Lancement du serveur
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+    console.log(`🚀 Serveur KermStyle actif sur le port ${PORT}`);
 });
