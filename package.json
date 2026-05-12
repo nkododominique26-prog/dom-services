@@ -1,7 +1,6 @@
 {
   "name": "dom-services",
-  "version": "1.1.0",
-  "description": "Boutique de services numériques",
+  "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
