@@ -9,15 +9,14 @@ const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// Modèles
+// Import des modèles
 const User = require('./models/User');
 const Article = require('./models/Article');
 const Recharge = require('./models/Recharge');
 
 const app = express();
-const PORT = process.env.PORT || 10000;
 
-// --- CONFIG CLOUDINARY ---
+// Configuration Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,
     api_key: process.env.CLOUDINARY_KEY,
@@ -30,12 +29,13 @@ const storage = new CloudinaryStorage({
 });
 const upload = multer({ storage: storage });
 
-// --- MIDDLEWARES ---
+// Middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Connexion BDD
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✅ BDD Connectée"))
     .catch(err => console.log("❌ Erreur BDD:", err));
@@ -48,10 +48,8 @@ app.use(session({
     cookie: { maxAge: 1000 * 60 * 60 * 24 }
 }));
 
-// --- ROUTES AUTHENTIFICATION ---
-
+// --- ROUTES AUTH ---
 app.get('/login', (req, res) => res.render('login'));
-
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
@@ -63,23 +61,23 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/register', (req, res) => res.render('register'));
-
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
-        await User.create({ username, password: hashedPassword });
+        await User.create({ username, password: hashedPassword, coins: 0 });
         res.redirect('/login');
     } catch (e) { res.send("Erreur : Pseudo déjà pris"); }
 });
 
-// --- ROUTES RECHARGE & DASHBOARD ---
-
+// --- ROUTES PRINCIPALES ---
 app.get('/', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
-    const user = await User.findById(req.session.userId);
-    const articles = await Article.find({ status: 'Approuvé' }).populate('author');
-    res.render('index', { user, articles });
+    try {
+        const user = await User.findById(req.session.userId);
+        const articles = await Article.find({ status: 'Approuvé' }).populate('author') || [];
+        res.render('index', { user, articles });
+    } catch (err) { res.redirect('/login'); }
 });
 
 app.get('/buy-coins', async (req, res) => {
@@ -89,13 +87,15 @@ app.get('/buy-coins', async (req, res) => {
 });
 
 app.post('/recharge-request', upload.single('proof'), async (req, res) => {
-    await Recharge.create({
-        userId: req.session.userId,
-        amount: req.body.amount,
-        method: req.body.method,
-        proofImage: req.file.path
-    });
-    res.render('recharge-success');
+    try {
+        await Recharge.create({
+            userId: req.session.userId,
+            amount: req.body.amount,
+            method: req.body.method,
+            proofImage: req.file.path
+        });
+        res.render('recharge-success');
+    } catch (e) { res.status(500).send("Erreur d'envoi"); }
 });
 
 // --- ADMIN ---
@@ -116,4 +116,5 @@ app.post('/admin/approve-recharge/:id', async (req, res) => {
     res.redirect('/admin/recharges');
 });
 
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Port ${PORT}`));
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Serveur prêt sur le port ${PORT}`));
