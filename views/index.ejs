@@ -1,97 +1,61 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const path = require('path');
-const multer = require('multer');
-const fs = require('fs');
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Mr Dom's</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-[#1a1625] text-white font-sans">
 
-// Modèles
-const Service = require('./models/Service');
-const User = require('./models/User');
-const Transaction = require('./models/Transaction');
+    <nav class="bg-[#241e35] p-4 shadow-lg border-b border-white/5 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-purple-500">MR DOM'S SERVICES</h1>
+        <div class="flex items-center gap-4">
+            <span class="bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full text-sm font-bold">
+                <i class="fas fa-coins mr-1"></i> <%= user.coins %> FCFA
+            </span>
+            <a href="/logout" class="text-gray-400 hover:text-white"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </nav>
 
-const app = express();
+    <div class="p-6 max-w-4xl mx-auto">
+        <h2 class="text-lg font-semibold mb-6">Nos Services Disponibles</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-[#241e35] p-5 rounded-2xl border border-white/5 hover:border-purple-500 transition">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="bg-pink-500/20 p-3 rounded-xl text-pink-500">
+                        <i class="fab fa-tiktok text-2xl"></i>
+                    </div>
+                    <span class="text-green-500 font-bold">À partir de 100 FCFA</span>
+                </div>
+                <h3 class="font-bold text-lg">Boost TikTok</h3>
+                <p class="text-gray-400 text-sm mb-4">Abonnés, Vues et Likes certifiés.</p>
+                <button class="w-full bg-purple-600 py-3 rounded-xl font-bold hover:bg-purple-700 transition">Commander</button>
+            </div>
 
-// Configuration Multer pour les images
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const dir = './public/uploads/';
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        cb(null, dir);
-    },
-    filename: (req, file, cb) => {
-        cb(null, 'preuve-' + Date.now() + path.extname(file.originalname));
-    }
-});
-const upload = multer({ storage: storage });
+            <div class="bg-[#241e35] p-5 rounded-2xl border border-white/5 hover:border-purple-500 transition">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="bg-red-500/20 p-3 rounded-xl text-red-500">
+                        <i class="fas fa-play text-2xl"></i>
+                    </div>
+                    <span class="text-green-500 font-bold">2500 FCFA / mois</span>
+                </div>
+                <h3 class="font-bold text-lg">Abonnement Netflix</h3>
+                <p class="text-gray-400 text-sm mb-4">Compte Premium Ultra HD 4K.</p>
+                <button class="w-full bg-purple-600 py-3 rounded-xl font-bold hover:bg-purple-700 transition">Commander</button>
+            </div>
+        </div>
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("✅ BDD Connectée"))
-    .catch(err => console.error(err));
+        <div class="mt-8 bg-gradient-to-r from-purple-900/40 to-blue-900/40 p-6 rounded-3xl border border-white/10 text-center">
+            <h3 class="font-bold mb-2">Besoin de recharger votre solde ?</h3>
+            <p class="text-sm text-gray-300 mb-4">Envoyez votre paiement via Mobile Money (Orange/MTN).</p>
+            <a href="https://wa.me/2376XXXXXXXX" class="inline-block bg-green-600 px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition">
+                <i class="fab fa-whatsapp mr-2"></i>Contacter l'Admin
+            </a>
+        </div>
+    </div>
 
-app.set('view engine', 'ejs');
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-
-// --- ROUTES CLIENT ---
-
-app.get('/', async (req, res) => {
-    const services = await Service.find().sort({ createdAt: -1 });
-    const user = { username: "Doms", coins: 304 }; // Simulation
-    res.render('index', { services, user });
-});
-
-app.get('/recharger', (req, res) => {
-    const user = { username: "Doms", coins: 304 };
-    res.render('recharger', { user });
-});
-
-app.get('/payer/:amount', (req, res) => {
-    const amount = req.params.amount;
-    res.render('paiement', { amount });
-});
-
-app.post('/soumettre-preuve', upload.single('capture'), async (req, res) => {
-    const { amount } = req.body;
-    try {
-        await Transaction.create({
-            userId: "DOMS_ID", 
-            username: "Doms",
-            amount: parseInt(amount),
-            proofImage: req.file ? req.file.filename : null
-        });
-        res.render('confirmation_paiement', { amount });
-    } catch (err) {
-        res.status(500).send("Erreur d'envoi");
-    }
-});
-
-// --- ROUTES ADMIN (Équipe) ---
-
-// 1. Liste des transactions à vérifier
-app.get('/admin/transactions', async (req, res) => {
-    try {
-        const transactions = await Transaction.find().sort({ createdAt: -1 });
-        res.render('admin_transactions', { transactions });
-    } catch (err) {
-        res.status(500).send("Erreur Admin");
-    }
-});
-
-// 2. Action : Valider une transaction
-app.post('/admin/valider/:id', async (req, res) => {
-    try {
-        const trans = await Transaction.findById(req.params.id);
-        if (trans && trans.status === 'En attente') {
-            trans.status = 'Validé';
-            await trans.save();
-            // Note : Plus tard, on ajoutera ici le code pour augmenter les coins du User
-        }
-        res.redirect('/admin/transactions');
-    } catch (err) {
-        res.status(500).send("Erreur de validation");
-    }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Live sur port ${PORT}`));
+</body>
+</html>
