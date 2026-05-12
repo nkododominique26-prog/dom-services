@@ -6,24 +6,25 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const bcrypt = require('bcryptjs');
 
+// Importation des modèles
 const User = require('./models/User');
 const Article = require('./models/Article'); 
 
 const app = express();
 
-// Configuration Express
+// --- CONFIGURATION ---
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Connexion MongoDB
+// --- CONNEXION BDD ---
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✅ BDD Connectée"))
     .catch(err => console.error("❌ Erreur BDD:", err));
 
-// Sessions
+// --- SESSIONS ---
 app.use(session({
     secret: process.env.SESSION_SECRET || 'doms_secret_2026',
     resave: false,
@@ -51,7 +52,16 @@ app.post('/publier-article', async (req, res) => {
         const { title, description, price, category } = req.body;
         await Article.create({ title, description, price, category });
         res.redirect('/');
-    } catch (err) { res.status(500).send("Erreur de publication"); }
+    } catch (err) { res.status(500).send("Erreur"); }
+});
+
+// Supprimer un service
+app.post('/supprimer-article/:id', async (req, res) => {
+    if (!req.session.userId) return res.redirect('/login');
+    try {
+        await Article.findByIdAndDelete(req.params.id);
+        res.redirect('/');
+    } catch (err) { res.redirect('/'); }
 });
 
 // Auth
@@ -83,4 +93,4 @@ app.get('/logout', (req, res) => {
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 MR DOM'S EN LIGNE`));
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 MR DOM'S ONLINE`));
