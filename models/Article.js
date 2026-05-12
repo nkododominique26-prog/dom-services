@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 const articleSchema = new mongoose.Schema({
     title: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String },
     price: { type: Number, required: true },
-    category: { type: String, enum: ['TikTok', 'Instagram', 'Facebook', 'IPTV', 'Autre'], default: 'Autre' },
+    category: { type: String, default: 'Autre' },
     createdAt: { type: Date, default: Date.now }
 });
 
