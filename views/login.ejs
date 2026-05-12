@@ -3,54 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - Dom's Services</title>
+    <title>Connexion - Dom's</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-[#1a1625] text-white flex items-center justify-center min-h-screen p-6">
-
+<body class="bg-[#1a1625] text-white flex items-center justify-center min-h-screen">
     <div class="bg-[#241e35] p-8 rounded-3xl w-full max-w-md shadow-2xl border border-white/5">
-        <div class="text-center mb-8">
-            <div class="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/20">
-                <i class="fas fa-sign-in-alt text-2xl"></i>
+        <h1 class="text-2xl font-bold mb-6 text-center text-purple-500">Se connecter</h1>
+
+        <% if (error) { %>
+            <div class="bg-red-500/20 border border-red-500 text-red-500 p-3 rounded-xl mb-4 text-sm text-center">
+                <%= error %>
             </div>
-            <h1 class="text-2xl font-bold text-white">Bon retour !</h1>
-            <p class="text-gray-400 text-sm mt-2">Connectez-vous pour accéder à vos services.</p>
-        </div>
+        <% } %>
 
         <form action="/login" method="POST" class="space-y-4">
-            <div>
-                <label class="block text-xs text-gray-500 mb-2 ml-1 uppercase font-bold tracking-wider">Nom d'utilisateur</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500">
-                        <i class="fas fa-user text-sm"></i>
-                    </span>
-                    <input type="text" name="username" placeholder="Ton nom d'utilisateur" required 
-                           class="w-full bg-[#1a1625] border border-gray-700 p-4 pl-12 rounded-xl focus:border-purple-500 focus:outline-none transition">
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-xs text-gray-500 mb-2 ml-1 uppercase font-bold tracking-wider">Mot de passe</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500">
-                        <i class="fas fa-lock text-sm"></i>
-                    </span>
-                    <input type="password" name="password" placeholder="••••••••" required 
-                           class="w-full bg-[#1a1625] border border-gray-700 p-4 pl-12 rounded-xl focus:border-purple-500 focus:outline-none transition">
-                </div>
-            </div>
-
-            <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 py-4 rounded-xl font-bold transition shadow-lg shadow-purple-500/20 mt-4">
-                Se connecter
+            <input type="text" name="username" placeholder="Nom d'utilisateur" required 
+                   class="w-full bg-[#1a1625] border border-gray-700 p-4 rounded-xl focus:border-purple-500 outline-none">
+            <input type="password" name="password" placeholder="Mot de passe" required 
+                   class="w-full bg-[#1a1625] border border-gray-700 p-4 rounded-xl focus:border-purple-500 outline-none">
+            <button type="submit" class="w-full bg-purple-600 py-4 rounded-xl font-bold hover:bg-purple-700 transition">
+                Connexion
             </button>
         </form>
-
-        <p class="mt-8 text-center text-gray-400 text-sm">
-            Nouveau ici ? 
-            <a href="/register" class="text-purple-500 font-bold hover:underline ml-1">Créer un compte</a>
-        </p>
+        <p class="mt-6 text-center text-gray-400 text-sm">Pas encore de compte ? <a href="/register" class="text-purple-500 underline">S'inscrire</a></p>
     </div>
-
 </body>
 </html>
