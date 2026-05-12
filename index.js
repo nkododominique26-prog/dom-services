@@ -6,9 +6,9 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const bcrypt = require('bcryptjs');
 
+// Importation des modèles
 const User = require('./models/User');
-// Note : Tu devras créer un modèle Article plus tard pour tes tarifs
-// const Article = require('./models/Article'); 
+const Article = require('./models/Article'); 
 
 const app = express();
 
@@ -32,40 +32,37 @@ app.use(session({
 
 // --- ROUTES ---
 
-// 1. Dashboard (Accueil)
+// 1. Dashboard : Affiche les derniers articles publiés
 app.get('/', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     try {
         const user = await User.findById(req.session.userId);
+        // On récupère les vrais articles de la base de données
+        const articles = await Article.find().sort({ createdAt: -1 });
+        
         res.render('index', { 
             user: user, 
             page: 'dashboard',
-            articles: [] // Liste vide pour l'instant
+            articles: articles 
         });
-    } catch (err) { res.redirect('/login'); }
+    } catch (err) {
+        res.redirect('/login');
+    }
 });
 
-// 2. Liste des Tarifs
-app.get('/tarifs', async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
+// 2. Route pour publier un article (POST)
+app.post('/publier-article', async (req, res) => {
+    if (!req.session.userId) return res.status(401).send("Non autorisé");
     try {
-        const user = await User.findById(req.session.userId);
-        res.render('index', { 
-            user: user, 
-            page: 'tarifs',
-            articles: [] // Ici tu pourras mettre tes services TikTok/Instagram
-        });
-    } catch (err) { res.redirect('/'); }
+        const { title, description, price, category } = req.body;
+        await Article.create({ title, description, price, category });
+        res.redirect('/'); // Redirige vers l'accueil pour voir l'article
+    } catch (err) {
+        res.status(500).send("Erreur lors de la publication");
+    }
 });
 
-// 3. Publier un Article (Interface Admin)
-app.get('/publier', async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
-    const user = await User.findById(req.session.userId);
-    res.render('index', { user: user, page: 'publier', articles: [] });
-});
-
-// 4. Authentification
+// 3. Authentification
 app.get('/login', (req, res) => res.render('login', { error: null }));
 app.get('/register', (req, res) => res.render('register', { error: null }));
 
@@ -75,7 +72,9 @@ app.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         await User.create({ username, password: hashedPassword });
         res.redirect('/login');
-    } catch (err) { res.render('register', { error: "Utilisateur déjà existant" }); }
+    } catch (err) {
+        res.render('register', { error: "Utilisateur déjà existant" });
+    }
 });
 
 app.post('/login', async (req, res) => {
@@ -94,4 +93,4 @@ app.get('/logout', (req, res) => {
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 MR DOM'S ONLINE`));
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 MR DOM'S EN LIGNE`));
