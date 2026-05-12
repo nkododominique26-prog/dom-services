@@ -3,68 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MR DOM'S | Dashboard</title>
+    <title>MR DOM'S - <%= page.toUpperCase() %></title>
+    <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { --primary: #7c4dff; --bg: #0b0e14; --card: #151921; --text: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; }
-        .sidebar { width: 260px; background: var(--card); height: 100vh; padding: 20px; border-right: 1px solid #252a34; position: fixed; }
-        .main { margin-left: 300px; padding: 30px; width: 100%; }
-        .user-card { background: #1e232d; padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
-        .avatar { width: 45px; height: 45px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .form-card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #252a34; margin-bottom: 40px; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; background: #0b0e14; border: 1px solid #252a34; color: white; border-radius: 10px; box-sizing: border-box; }
-        .btn-add { background: var(--primary); border: none; padding: 12px; width: 100%; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .service-card { background: var(--card); padding: 20px; border-radius: 18px; border: 1px solid #252a34; position: relative; }
-        .price { color: #00e676; font-size: 1.4rem; font-weight: bold; margin-top: 10px; }
-        .btn-del { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #ff5252; font-size: 1.2rem; cursor: pointer; }
-    </style>
 </head>
-<body>
-    <nav class="sidebar">
-        <h2 style="color: var(--primary)">MR DOM'S</h2>
-        <p><a href="/" style="color: white; text-decoration: none"><i class="fas fa-chart-pie"></i> Dashboard</a></p>
-        <p><a href="/logout" style="color: #ff5252; text-decoration: none"><i class="fas fa-power-off"></i> Déconnexion</a></p>
-    </nav>
+<body class="dark-theme">
 
-    <main class="main">
-        <div class="user-card">
-            <div class="avatar"><%= user.username.substring(0, 2).toUpperCase() %></div>
-            <div>
-                <div style="font-weight: bold"><%= user.username %></div>
-                <div style="font-size: 0.8rem; color: var(--primary)">ADMIN</div>
+    <div class="app-container">
+        <!-- BARRE LATÉRALE (SIDEBAR) -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fas fa-bolt"></i>
+                <span>MR DOM'S</span>
             </div>
-        </div>
 
-        <div class="form-card">
-            <h3>Nouveau Service</h3>
-            <form action="/publier-article" method="POST">
-                <input type="text" name="title" placeholder="Nom du service..." required>
-                <select name="category">
-                    <option value="TikTok">TikTok Boost</option>
-                    <option value="Instagram">Instagram Boost</option>
-                    <option value="IPTV">Abonnement IPTV</option>
-                </select>
-                <input type="number" name="price" placeholder="Prix (FCFA)" required>
-                <textarea name="description" placeholder="Détails du service..."></textarea>
-                <button type="submit" class="btn-add">Publier</button>
-            </form>
-        </div>
-
-        <div class="grid">
-            <% articles.forEach(article => { %>
-                <div class="service-card">
-                    <form action="/supprimer-article/<%= article._id %>" method="POST">
-                        <button type="submit" class="btn-del">×</button>
-                    </form>
-                    <span style="font-size: 0.7rem; background: #252a34; padding: 4px 8px; border-radius: 5px;"><%= article.category %></span>
-                    <h3><%= article.title %></h3>
-                    <p style="font-size: 0.9rem; color: #b0b0b0"><%= article.description %></p>
-                    <div class="price"><%= article.price %> FCFA</div>
+            <div class="user-card">
+                <div class="avatar">DO</div>
+                <div class="user-info">
+                    <strong><%= user.username %></strong>
+                    <span class="badge"><%= user.role || 'CLIENT' %></span>
                 </div>
-            <% }) %>
-        </div>
-    </main>
+            </div>
+
+            <nav class="menu">
+                <a href="/" class="<%= page === 'dashboard' ? 'active' : '' %>">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="/tarifs" class="<%= page === 'tarifs' ? 'active' : '' %>">
+                    <i class="fas fa-tags"></i> Liste des Tarifs
+                </a>
+                <a href="/recharge" class="<%= page === 'recharge' ? 'active' : '' %>">
+                    <i class="fas fa-plus-circle"></i> Acheter Coins
+                </a>
+                <a href="/publier" class="<%= page === 'publier' ? 'active' : '' %>">
+                    <i class="fas fa-edit"></i> Publier Article
+                </a>
+                <a href="/approbation" class="admin-only <%= page === 'approbation' ? 'active' : '' %>">
+                    <i class="fas fa-user-shield"></i> Admin Approbation
+                </a>
+            </nav>
+
+            <a href="/logout" class="logout-btn">
+                <i class="fas fa-power-off"></i> Déconnexion
+            </a>
+        </aside>
+
+        <!-- CONTENU PRINCIPAL -->
+        <main class="content">
+            <% if (page === 'dashboard') { %>
+                <h2>Bienvenue sur votre Dashboard</h2>
+                <!-- Tes stats et articles ici -->
+            <% } else if (page === 'publier') { %>
+                <div class="form-card">
+                    <h3>Nouveau Service</h3>
+                    <form action="/add-service" method="POST">
+                        <input type="text" name="title" placeholder="Nom du service..." required>
+                        <select name="category">
+                            <option value="TikTok Boost">TikTok Boost</option>
+                            <option value="Instagram">Instagram</option>
+                        </select>
+                        <input type="number" name="price" placeholder="Prix (FCFA)" required>
+                        <textarea name="description" placeholder="Détails..."></textarea>
+                        <button type="submit" class="btn-publish">Publier</button>
+                    </form>
+                </div>
+            <% } %>
+        </main>
+    </div>
+
 </body>
 </html>
