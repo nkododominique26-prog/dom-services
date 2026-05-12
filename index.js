@@ -1,97 +1,65 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const path = require('path');
-const bcrypt = require('bcryptjs');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
-
-// Modèles
-const User = require('./models/User');
-const Article = require('./models/Article');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multer = require('multer');
 const Recharge = require('./models/Recharge');
 
-const app = express();
-const PORT = process.env.PORT || 10000;
+// Configuration Cloudinary avec tes clés
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET
+});
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.set('view engine', 'ejs');
-app.use(express.static(path.join(__dirname, 'public')));
+// Setup du stockage Cloud
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'mr_doms_recharges',
+        allowed_formats: ['jpg', 'png', 'jpeg'],
+    },
+});
+const upload = multer({ storage: storage });
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("✅ BDD Connectée"))
-    .catch(err => console.error("❌ Erreur BDD:", err));
+// --- ROUTES ---
 
-app.use(session({
-    secret: 'doms_secret_key_2026',
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-    cookie: { maxAge: 1000 * 60 * 60 * 24 }
-}));
-
-// --- MIDDLEWARE DE PROTECTION ---
-const isAdmin = async (req, res, next) => {
-    if (!req.session.userId) return res.redirect('/login');
-    const user = await User.findById(req.session.userId);
-    if (user && user.username === 'Doms') return next();
-    res.status(403).send("Accès réservé à l'administrateur.");
-};
-
-// --- ROUTES RECHARGE ---
-
-// Page de choix de méthode
+// 1. Page de recharge client
 app.get('/buy-coins', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     const user = await User.findById(req.session.userId);
-    res.render('buy-coins', { user, page: 'buy-coins' });
+    res.render('buy-coins', { user });
 });
 
-// Envoi de la demande et redirection WhatsApp
-app.post('/recharge-request', async (req, res) => {
-    const { amount, method } = req.body;
-    const user = await User.findById(req.session.userId);
-    
-    await Recharge.create({
-        userId: req.session.userId,
-        amount: parseInt(amount),
-        method: method
-    });
+// 2. Traitement de la preuve
+app.post('/recharge-request', upload.single('proof'), async (req, res) => {
+    try {
+        const { amount, method } = req.body;
+        if (!req.file) return res.send("Erreur : Image manquante.");
 
-    const message = `Salut Mr Dom's, je viens de recharger ${amount} FCFA via ${method}. Mon pseudo est : ${user.username}. Voici ma preuve :`;
-    const whatsappUrl = `https://wa.me/2376XXXXXXXX?text=${encodeURIComponent(message)}`;
-    res.redirect(whatsappUrl);
+        await Recharge.create({
+            userId: req.session.userId,
+            amount: parseInt(amount),
+            method: method,
+            proofImage: req.file.path
+        });
+        res.render('recharge-success');
+    } catch (err) { res.status(500).send("Erreur serveur."); }
 });
 
-// PAGE ADMIN : Voir les recharges en attente
-app.get('/admin/recharges', isAdmin, async (req, res) => {
+// 3. Admin : Liste des recharges
+app.get('/admin/recharges', async (req, res) => {
     const user = await User.findById(req.session.userId);
+    if (user.username !== 'Doms') return res.redirect('/');
     const pendingRecharges = await Recharge.find({ status: 'En attente' }).populate('userId');
     res.render('admin-recharges', { user, pendingRecharges });
 });
 
-// ACTION ADMIN : Valider et libérer l'argent
-app.post('/admin/approve-recharge/:id', isAdmin, async (req, res) => {
-    try {
-        const recharge = await Recharge.findById(req.params.id);
-        if (recharge && recharge.status === 'En attente') {
-            // Ajouter les coins au solde du client ($inc)
-            await User.findByIdAndUpdate(recharge.userId, { $inc: { coins: recharge.amount } });
-            // Marquer comme approuvé
-            recharge.status = 'Approuvé';
-            await recharge.save();
-        }
-        res.redirect('/admin/recharges');
-    } catch (err) { res.send("Erreur de validation"); }
+// 4. Admin : Validation finale
+app.post('/admin/approve-recharge/:id', async (req, res) => {
+    const recharge = await Recharge.findById(req.params.id);
+    if (recharge && recharge.status === 'En attente') {
+        await User.findByIdAndUpdate(recharge.userId, { $inc: { coins: recharge.amount } });
+        recharge.status = 'Approuvé';
+        await recharge.save();
+    }
+    res.redirect('/admin/recharges');
 });
-
-// --- AUTRES ROUTES (Résumé) ---
-app.get('/', async (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
-    const user = await User.findById(req.session.userId);
-    const articles = await Article.find({ status: 'Approuvé' }).populate('author').sort({ createdAt: -1 });
-    res.render('index', { user, articles, page: 'dashboard' });
-});
-
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Serveur actif sur port ${PORT}`));
