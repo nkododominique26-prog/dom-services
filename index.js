@@ -12,25 +12,27 @@ const Article = require('./models/Article');
 
 const app = express();
 
-// --- CONFIGURATION ---
+// --- CONFIGURATION DES DOSSIERS ---
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+// CRITIQUE : Cette ligne permet de charger ton CSS
 app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// --- BDD ---
+// --- CONNEXION MONGODB ---
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✅ BDD Connectée"))
     .catch(err => console.error("❌ Erreur BDD:", err));
 
-// --- SESSIONS ---
+// --- GESTION DES SESSIONS ---
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'mrdoms_secret_key',
+    secret: process.env.SESSION_SECRET || 'mrdoms_ultra_secret_2026',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-    cookie: { maxAge: 1000 * 60 * 60 * 24 } // 24 heures
+    cookie: { maxAge: 1000 * 60 * 60 * 24 }
 }));
 
 // --- ROUTES AUTHENTIFICATION ---
@@ -50,7 +52,7 @@ app.post('/login', async (req, res) => {
         }
         res.render('login', { error: "Identifiants incorrects" });
     } catch (err) {
-        res.render('login', { error: "Erreur serveur" });
+        res.render('login', { error: "Erreur technique" });
     }
 });
 
@@ -59,7 +61,7 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
-// --- ROUTES PRINCIPALES ---
+// --- ROUTES DE NAVIGATION ---
 
 // Accueil (Dashboard)
 app.get('/', async (req, res) => {
@@ -71,7 +73,7 @@ app.get('/', async (req, res) => {
     } catch (err) { res.redirect('/login'); }
 });
 
-// Gestion des autres pages (Tarifs, Recharge, etc.) via /p/
+// Pages secondaires (Tarifs, Recharge, etc.)
 app.get('/p/:page', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     try {
@@ -81,23 +83,17 @@ app.get('/p/:page', async (req, res) => {
     } catch (err) { res.redirect('/'); }
 });
 
-// Action : Ajouter un service
+// Action : Ajouter un article
 app.post('/add-service', async (req, res) => {
-    if (!req.session.userId) return res.status(401).send("Non autorisé");
+    if (!req.session.userId) return res.redirect('/login');
     try {
         const { title, category, price, description } = req.body;
-        await Article.create({
-            title,
-            category,
-            price: Number(price),
-            description
-        });
+        await Article.create({ title, category, price: Number(price), description });
         res.redirect('/');
     } catch (err) {
-        console.error(err);
         res.redirect('/p/publier?error=true');
     }
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 MR DOM'S opérationnel sur le port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Serveur MR DOM'S lancé`));
