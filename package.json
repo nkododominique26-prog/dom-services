@@ -1,9 +1,11 @@
 {
-  "name": "doms-services",
+  "name": "mr-doms-platform",
   "version": "1.0.0",
+  "description": "Base stable pour la plateforme de services",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -12,7 +14,6 @@
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
-    "mongoose": "^8.3.4",
-    "multer": "^1.4.5-lts.1"
+    "mongoose": "^8.3.4"
   }
 }
