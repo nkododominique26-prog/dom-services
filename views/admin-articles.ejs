@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"><title>Admin - Mr Dom's</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-[#0f111a] text-white p-6 font-sans">
+    <div class="max-w-3xl mx-auto">
+        <div class="flex justify-between items-center mb-10">
+            <h1 class="text-2xl font-bold">Validation des articles</h1>
+            <a href="/" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></a>
+        </div>
+
+        <div class="space-y-4">
+            <% pendingArticles.forEach(article => { %>
+                <div class="bg-[#161926] p-6 rounded-3xl border border-yellow-500/20 flex justify-between items-center">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-yellow-500/20 text-yellow-500 text-[10px] font-bold px-2 py-0.5 rounded uppercase">En attente</span>
+                            <h3 class="font-bold"><%= article.title %></h3>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-3">Posté par <%= article.author.username %></p>
+                        <p class="text-sm text-gray-300"><%= article.content %></p>
+                    </div>
+                    <form action="/admin/approve/<%= article._id %>" method="POST" class="ml-4">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 p-4 rounded-2xl transition shadow-lg shadow-green-600/20">
+                            <i class="fas fa-check text-xl"></i>
+                        </button>
+                    </form>
+                </div>
+            <% }) %>
+
+            <% if (pendingArticles.length === 0) { %>
+                <div class="text-center py-20">
+                    <i class="fas fa-check-circle text-5xl text-gray-700 mb-4"></i>
+                    <p class="text-gray-500">Tout est à jour ! Aucun article en attente.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>
