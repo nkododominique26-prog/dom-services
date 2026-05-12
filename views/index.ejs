@@ -3,76 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MR DOM'S - <%= page.toUpperCase() %></title>
+    <title>MR DOM'S | <%= page.toUpperCase() %></title>
+    <!-- CRITIQUE : Le "/" au début de href est obligatoire -->
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="dark-theme">
+<body>
 
-    <div class="app-container">
-        <!-- BARRE LATÉRALE -->
+    <div class="app-wrapper">
+        <!-- BARRE LATÉRALE (SIDEBAR) -->
         <aside class="sidebar">
-            <div class="brand">
+            <div class="logo-section">
                 <i class="fas fa-bolt"></i>
                 <span>MR DOM'S</span>
             </div>
 
-            <div class="user-card">
-                <div class="avatar">DO</div>
-                <div class="user-info">
-                    <strong><%= user.username %></strong>
-                    <span class="badge"><%= user.role || 'CLIENT' %></span>
+            <div class="profile-card">
+                <div class="avatar-circle">DO</div>
+                <div class="profile-details">
+                    <span class="user-name"><%= user.username %></span>
+                    <span class="user-status"><%= user.role || 'Client' %></span>
                 </div>
             </div>
 
-            <nav class="menu">
+            <nav class="nav-links">
                 <a href="/" class="<%= page === 'dashboard' ? 'active' : '' %>">
-                    <i class="fas fa-chart-pie"></i> Dashboard
+                    <i class="fas fa-th-large"></i> Dashboard
                 </a>
                 <a href="/p/tarifs" class="<%= page === 'tarifs' ? 'active' : '' %>">
-                    <i class="fas fa-tags"></i> Liste des Tarifs
+                    <i class="fas fa-list"></i> Liste des Tarifs
                 </a>
                 <a href="/p/recharge" class="<%= page === 'recharge' ? 'active' : '' %>">
-                    <i class="fas fa-plus-circle"></i> Acheter Coins
+                    <i class="fas fa-coins"></i> Acheter Coins
                 </a>
                 <a href="/p/publier" class="<%= page === 'publier' ? 'active' : '' %>">
-                    <i class="fas fa-edit"></i> Publier Article
+                    <i class="fas fa-plus-square"></i> Publier Article
                 </a>
                 <a href="/p/approbation" class="<%= page === 'approbation' ? 'active' : '' %>">
-                    <i class="fas fa-user-shield"></i> Admin Approbation
+                    <i class="fas fa-check-circle"></i> Admin Approbation
                 </a>
             </nav>
 
-            <a href="/logout" class="logout-btn">
-                <i class="fas fa-power-off"></i> Déconnexion
-            </a>
+            <div class="bottom-nav">
+                <a href="/logout" class="logout-link">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </a>
+            </div>
         </aside>
 
-        <!-- CONTENU -->
-        <main class="content">
+        <!-- ZONE DE CONTENU -->
+        <main class="main-content">
             <% if (page === 'dashboard') { %>
-                <h2>Dashboard</h2>
-                <div class="stats-grid">
-                    <!-- Tes cartes de statistiques ici -->
+                <h1>Tableau de bord</h1>
+                <div class="dashboard-grid">
+                    <!-- Contenu ici -->
                 </div>
             <% } else if (page === 'publier') { %>
-                <div class="form-card">
-                    <h3>Nouveau Service</h3>
+                <div class="card-form">
+                    <h2>Créer un service</h2>
                     <form action="/add-service" method="POST">
-                        <input type="text" name="title" placeholder="Nom du service..." required>
+                        <input type="text" name="title" placeholder="Nom du service" required>
                         <select name="category">
                             <option value="TikTok Boost">TikTok Boost</option>
-                            <option value="Instagram">Instagram</option>
-                            <option value="Facebook">Facebook</option>
+                            <option value="Abonnés IG">Instagram</option>
                         </select>
                         <input type="number" name="price" placeholder="Prix (FCFA)" required>
-                        <textarea name="description" placeholder="Détails du service..."></textarea>
-                        <button type="submit" class="btn-publish">Publier</button>
+                        <textarea name="description" placeholder="Description..."></textarea>
+                        <button type="submit">Lancer la publication</button>
                     </form>
                 </div>
-            <% } else if (page === 'tarifs') { %>
-                <h2>Liste des Tarifs</h2>
-                <!-- Boucle sur articles -->
             <% } %>
         </main>
     </div>
