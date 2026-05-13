@@ -1,9 +1,11 @@
 {
-  "name": "mr-doms-platform",
+  "name": "mrdoms",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Mr Dom's SaaS",
+  "main": "server.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -12,6 +14,9 @@
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
-    "mongoose": "^8.3.4"
+    "mongoose": "^8.5.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
   }
 }
